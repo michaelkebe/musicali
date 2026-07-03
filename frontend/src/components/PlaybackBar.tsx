@@ -53,9 +53,9 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
 
   return (
     <span className="tap-group">
-      <TapButton label={<>Each<br />Beat</>} multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
-      <TapButton label={<>Each<br />4 Beats</>} multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
-      <TapButton label={<>Each<br />8 Beats</>} multiplier={8} onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Every<br />1</>} multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
+      <TapButton label={<>Every<br />4</>} multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Every<br />8</>} multiplier={8} onBpmChange={onBpmChange} resetKey={resetKey} />
       <button className="ctrl-btn tap-reset" onMouseDown={reset}>
         ↺
       </button>
