@@ -167,9 +167,11 @@ h2 {
 
 .beat-display {
   margin-left: auto;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
+  font-size: 4rem;
+  font-weight: 700;
+  color: rgba(255,200,100,0.6);
   font-family: monospace;
+  line-height: 1;
 }
 
 /* Current beat highlight */
