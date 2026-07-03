@@ -230,6 +230,12 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     setError("")
     const ctx = new AudioContext()
 
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError("Mic access requires HTTPS or localhost")
+      setTimeout(() => setError(""), 5000)
+      return
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       if (ctx.state === "suspended") await ctx.resume()
