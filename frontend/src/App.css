@@ -521,3 +521,20 @@ h2 {
 .ctrl-btn.nudge:hover:not(:disabled) {
   background: rgba(255,200,100,0.18);
 }
+
+/* --- Snap --- */
+.snap-group {
+  display: flex;
+  gap: 2px;
+}
+.ctrl-btn.snap {
+  font-size: 0.6rem;
+  padding: 0.2rem 0.3rem;
+  font-family: monospace;
+  background: rgba(107,203,119,0.08);
+  border-color: rgba(107,203,119,0.25);
+  color: #6bcb77;
+}
+.ctrl-btn.snap:hover:not(:disabled) {
+  background: rgba(107,203,119,0.18);
+}
