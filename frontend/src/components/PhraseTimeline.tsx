@@ -19,6 +19,7 @@ interface Segment {
   startCol: number
   endCol: number
   isStart: boolean
+  isEnd: boolean
 }
 
 export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
@@ -61,6 +62,7 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
         startCol,
         endCol,
         isStart: overlapStart === p.startBeat,
+        isEnd: overlapEnd === pEnd,
       })
     }
     return segs
@@ -99,7 +101,9 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
                       ))}
 
                       {rowSegments(phraseIdx * 4 + row).map((seg) => {
-                        const cls = `pattern-overlay b${seg.totalBeats}`
+                        let cls = `pattern-overlay b${seg.totalBeats}`
+                        if (!seg.isEnd) cls += " continues-r"
+                        if (!seg.isStart) cls += " continues-l"
                         return (
                           <div
                             key={seg.pid}
@@ -110,12 +114,9 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
                             }}
                             onClick={() => onRemove(seg.pid)}
                           >
-                            {seg.isStart && (
-                              <>
-                                <span className="overlay-name">{seg.name}</span>
-                                <span className="overlay-count">{seg.totalBeats}</span>
-                              </>
-                            )}
+                            <span className="overlay-name">{seg.name}</span>
+                            {!seg.isEnd && <span className="cont-r">▸</span>}
+                            {!seg.isStart && <span className="cont-l">◂</span>}
                           </div>
                         )
                       })}

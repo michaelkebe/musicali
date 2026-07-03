@@ -36,6 +36,28 @@ export default function App() {
     setPlaced((prev) => prev.filter((p) => p.id !== id))
   }, [])
 
+  const handleDoubleClick = useCallback((pattern: PatternDef) => {
+    setPlaced((prev) => {
+      const occupied = new Set<number>()
+      for (const p of prev) {
+        const def = allPatterns.find((d) => d.id === p.patternId)!
+        for (let b = p.startBeat; b < p.startBeat + def.beats; b++) {
+          occupied.add(b)
+        }
+      }
+      for (let start = 1; start <= 128 - pattern.beats + 1; start++) {
+        let free = true
+        for (let b = start; b < start + pattern.beats; b++) {
+          if (occupied.has(b)) { free = false; break }
+        }
+        if (free) {
+          return [...prev, { id: `p${nextId++}`, patternId: pattern.id, startBeat: start }]
+        }
+      }
+      return prev
+    })
+  }, [])
+
   const totalBeats = placed.reduce(
     (sum, p) => sum + (allPatterns.find((d) => d.id === p.patternId)?.beats ?? 0),
     0,
@@ -58,7 +80,7 @@ export default function App() {
       </header>
 
       <div className="app-layout">
-        <PatternPalette onSelect={handleSelect} selectedId={selected?.id ?? null} />
+        <PatternPalette onSelect={handleSelect} onDoubleClick={handleDoubleClick} selectedId={selected?.id ?? null} />
         <div className="main-col">
           <PhraseTimeline placed={placed} onPlace={handlePlace} onRemove={handleRemove} />
 

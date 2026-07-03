@@ -238,8 +238,8 @@ h2 {
 .pattern-overlay {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 6px;
+  gap: 4px;
+  padding: 0 4px;
   border-radius: 5px;
   cursor: pointer;
   z-index: 2;
@@ -269,6 +269,20 @@ h2 {
   box-shadow: 0 0 8px rgba(106, 106, 42, 0.3);
 }
 
+/* Dotted border on sides that continue to next/previous row */
+.pattern-overlay.continues-r {
+  border-right-style: dotted;
+  border-right-color: rgba(255,255,255,0.2);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.pattern-overlay.continues-l {
+  border-left-style: dotted;
+  border-left-color: rgba(255,255,255,0.2);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 .overlay-name {
   font-size: 0.7rem;
   font-weight: 600;
@@ -294,6 +308,21 @@ h2 {
 .b6 .overlay-count {
   background: rgba(255,217,61,0.25);
   color: #ffd93d;
+}
+
+/* Continuation arrows */
+.cont-r {
+  margin-left: auto;
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.cont-l {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 /* --- Sequence list --- */
