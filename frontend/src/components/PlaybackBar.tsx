@@ -8,11 +8,9 @@ interface Props {
   onPlay: () => void
   onStop: () => void
   onNudge: (direction: -1 | 1, stepMs: number) => void
-  onSnapToBar: () => void
-  onSnapToPhrase: () => void
 }
 
-export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, onPlay, onStop, onNudge, onSnapToBar, onSnapToPhrase }: Props) {
+export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, onPlay, onStop, onNudge }: Props) {
   return (
     <div className="playback-bar">
       <BpmTapper onBpmChange={onBpmChange} />
@@ -28,8 +26,6 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
       </button>
 
       <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
-
-      <SnapButtons onSnapToBar={onSnapToBar} onSnapToPhrase={onSnapToPhrase} disabled={!isPlaying} />
 
       <span className="beat-display">
         Beat {currentBeat} / 128
@@ -146,19 +142,6 @@ function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) =
       </button>
       <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 100)} disabled={disabled}>
         +100ms
-      </button>
-    </span>
-  )
-}
-
-function SnapButtons({ onSnapToBar, onSnapToPhrase, disabled }: { onSnapToBar: () => void; onSnapToPhrase: () => void; disabled: boolean }) {
-  return (
-    <span className="snap-group">
-      <button className="ctrl-btn snap" onMouseDown={onSnapToBar} disabled={disabled}>
-        Bar
-      </button>
-      <button className="ctrl-btn snap" onMouseDown={onSnapToPhrase} disabled={disabled}>
-        Phr
       </button>
     </span>
   )

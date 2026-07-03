@@ -142,30 +142,6 @@ export default function App() {
     }
   }, [advanceBeat])
 
-  const handleSnapToBar = useCallback(() => {
-    if (!isPlayingRef.current || bpmRef.current <= 0) return
-    const beat = currentBeatRef.current
-    const bar = Math.ceil(beat / 8)
-    const target = (bar - 1) * 8 + 1
-    setCurrentBeat(target)
-    currentBeatRef.current = target
-    triggeredRef.current = new Set()
-    nextBeatTimeRef.current = performance.now()
-  }, [])
-
-  const handleSnapToPhrase = useCallback(() => {
-    if (!isPlayingRef.current || bpmRef.current <= 0) return
-    const beat = currentBeatRef.current
-    const phrase = Math.ceil(beat / 32)
-    // snap to current phrase start; if already there, go to next
-    const currentStart = (phrase - 1) * 32 + 1
-    const target = beat === currentStart ? Math.min(currentStart + 32, 128) : currentStart
-    setCurrentBeat(target)
-    currentBeatRef.current = target
-    triggeredRef.current = new Set()
-    nextBeatTimeRef.current = performance.now()
-  }, [])
-
   const totalBeats = placed.reduce(
     (sum, p) => sum + (allPatterns.find((d) => d.id === p.patternId)?.beats ?? 0),
     0,
@@ -198,8 +174,6 @@ export default function App() {
             onPlay={handlePlay}
             onStop={handleStop}
             onNudge={handleNudge}
-            onSnapToBar={handleSnapToBar}
-            onSnapToPhrase={handleSnapToPhrase}
           />
 
           <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />
