@@ -1,15 +1,15 @@
 import type { PatternDef } from "../types"
 
 export const patterns8: PatternDef[] = [
-  { id: "basic-whip", name: "Basic Whip", beats: 8, description: "Basic 8-count whip pattern" },
+  { id: "basic-whip", name: "Basic Whip", beats: 8 },
 ]
 
 export const patterns6: PatternDef[] = [
-  { id: "sugar-push", name: "Sugar Push", beats: 6, description: "Push break with anchor step" },
-  { id: "left-side-pass", name: "Left Side Pass", beats: 6, description: "Lead moves left, pass on the left side" },
-  { id: "sugar-tuck", name: "Sugar Tuck", beats: 6, description: "Tuck and turn the follow" },
-  { id: "underarm", name: "Underarm Turn", beats: 6, description: "Follow turns under the lead's arm" },
-  { id: "sweetheart", name: "Sweetheart", beats: 6, description: "Both face same direction, walk forward" },
+  { id: "sugar-push", name: "Sugar Push", beats: 6 },
+  { id: "left-side-pass", name: "Left Side Pass", beats: 6 },
+  { id: "sugar-tuck", name: "Sugar Tuck", beats: 6 },
+  { id: "underarm", name: "Underarm Turn", beats: 6 },
+  { id: "sweetheart", name: "Sweetheart", beats: 6 },
 ]
 
 export const allPatterns: PatternDef[] = [...patterns8, ...patterns6]
