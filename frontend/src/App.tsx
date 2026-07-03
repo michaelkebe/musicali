@@ -93,6 +93,7 @@ export default function App() {
           if (def) {
             speechSynthesis.cancel()
             const utter = new SpeechSynthesisUtterance(def.name)
+            utter.lang = "en-US";
             speechSynthesis.speak(utter)
           }
         }

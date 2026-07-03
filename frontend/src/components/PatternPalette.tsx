@@ -12,6 +12,7 @@ export default function PatternPalette({ onSelect, onDoubleClick, selectedId }: 
     onSelect(p)
     speechSynthesis.cancel()
     const utter = new SpeechSynthesisUtterance(p.name)
+    utter.lang = "en-US";
     speechSynthesis.speak(utter)
   }
 
