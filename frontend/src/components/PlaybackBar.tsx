@@ -34,7 +34,7 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
       </span>
 
       <span className="btn-group">
-        <span className="beat-display">
+        <span className="beat-display" key={currentBeat}>
           <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
           <span className="beat-num-lg">{rowBeat}</span>
         </span>

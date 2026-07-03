@@ -176,11 +176,17 @@ h2 {
   font-family: monospace;
 }
 
+@keyframes beat-flash {
+  0%   { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
 .beat-display {
   margin-left: auto;
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+  animation: beat-flash 0.12s ease-out;
 }
 .beat-dir {
   font-size: 1.5rem;
