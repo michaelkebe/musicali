@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import type { PatternDef, PlacedPattern } from "./types"
-import { allPatterns, soundMap } from "./data/patterns"
+import { allPatterns } from "./data/patterns"
 import PatternPalette from "./components/PatternPalette"
 import PhraseTimeline from "./components/PhraseTimeline"
 import PlaybackBar from "./components/PlaybackBar"
@@ -88,10 +88,11 @@ export default function App() {
       for (const p of placedRef.current) {
         if (p.startBeat === upcomingBeat && !triggeredRef.current.has(p.id)) {
           triggeredRef.current.add(p.id)
-          const src = soundMap[p.patternId]
-          if (src) {
-            const audio = new Audio(src)
-            audio.play()
+          const def = allPatterns.find((d) => d.id === p.patternId)
+          if (def) {
+            speechSynthesis.cancel()
+            const utter = new SpeechSynthesisUtterance(def.name)
+            speechSynthesis.speak(utter)
           }
         }
       }

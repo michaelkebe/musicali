@@ -1,6 +1,5 @@
-import { useRef } from "react"
 import type { PatternDef } from "../types"
-import { soundMap, patterns8, patterns6 } from "../data/patterns"
+import { patterns8, patterns6 } from "../data/patterns"
 
 interface Props {
   onSelect: (pattern: PatternDef) => void
@@ -9,18 +8,11 @@ interface Props {
 }
 
 export default function PatternPalette({ onSelect, onDoubleClick, selectedId }: Props) {
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-
   const handleSelect = (p: PatternDef) => {
     onSelect(p)
-    const src = soundMap[p.id]
-    if (!src) return
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-    }
-    audioRef.current = new Audio(src)
-    audioRef.current.play()
+    speechSynthesis.cancel()
+    const utter = new SpeechSynthesisUtterance(p.name)
+    speechSynthesis.speak(utter)
   }
 
   return (

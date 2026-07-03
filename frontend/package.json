@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-text-to-speech": "^5.1.10",
     "wavesurfer.js": "^7.12.8"
   },
   "devDependencies": {

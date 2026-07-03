@@ -13,12 +13,3 @@ export const patterns6: PatternDef[] = [
 ]
 
 export const allPatterns: PatternDef[] = [...patterns8, ...patterns6]
-
-export const soundMap: Record<string, string> = {
-  "basic-whip": "/sounds/basic-whip.mp3",
-  "sugar-push": "/sounds/sugar-push.mp3",
-  "sugar-tuck": "/sounds/sugar-tuck.mp3",
-  "sweetheart": "/sounds/sweetheart.mp3",
-  "left-side-pass": "/sounds/left-side-pass.mp3",
-  "underarm": "/sounds/underarm-turn.mp3",
-}
