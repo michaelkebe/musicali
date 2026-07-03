@@ -96,7 +96,7 @@ export default function App() {
             </div>
             <div className="stat">
               <span className="stat-label">Phrases</span>
-              <span className="stat-value">{wrapCount + 1}</span>
+              <span className="stat-value">{totalBeats === 0 ? 0 : wrapCount + 1}</span>
             </div>
             <div className="stat">
               <span className="stat-label">8-counts</span>
