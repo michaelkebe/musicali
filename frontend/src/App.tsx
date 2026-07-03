@@ -135,6 +135,11 @@ export default function App() {
     }
   }, [isPlaying, advanceBeat])
 
+  // stop playback when BPM is reset to 0
+  useEffect(() => {
+    if (bpm <= 0 && isPlaying) handleStop()
+  }, [bpm, isPlaying, handleStop])
+
   const handleNudge = useCallback((direction: -1 | 1, stepMs: number) => {
     if (!isPlayingRef.current || bpmRef.current <= 0) return
     nextBeatTimeRef.current += direction * stepMs
