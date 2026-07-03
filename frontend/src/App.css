@@ -253,7 +253,8 @@ h2 {
   background: rgba(26, 58, 42, 0.08);
   border-color: #2a6a4a;
 }
-.pattern-overlay.b8:hover {
+.pattern-overlay.b8:hover,
+.pattern-overlay.b8.hovered {
   background: rgba(26, 58, 42, 0.2);
   border-color: #3a8a5a;
   box-shadow: 0 0 8px rgba(42, 106, 74, 0.3);
@@ -263,7 +264,8 @@ h2 {
   background: rgba(58, 58, 26, 0.08);
   border-color: #6a6a2a;
 }
-.pattern-overlay.b6:hover {
+.pattern-overlay.b6:hover,
+.pattern-overlay.b6.hovered {
   background: rgba(58, 58, 26, 0.2);
   border-color: #8a8a3a;
   box-shadow: 0 0 8px rgba(106, 106, 42, 0.3);

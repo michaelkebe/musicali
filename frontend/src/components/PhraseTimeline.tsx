@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { PlacedPattern } from "../types"
 import { allPatterns } from "../data/patterns"
 
@@ -23,6 +24,7 @@ interface Segment {
 }
 
 export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
+  const [hovered, setHovered] = useState<string | null>(null)
   const getPattern = (patternId: string) => allPatterns.find((p) => p.id === patternId)!
 
   const occupied = new Set<number>()
@@ -104,6 +106,7 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
                         let cls = `pattern-overlay b${seg.totalBeats}`
                         if (!seg.isEnd) cls += " continues-r"
                         if (!seg.isStart) cls += " continues-l"
+                        if (hovered === seg.pid) cls += " hovered"
                         return (
                           <div
                             key={seg.pid}
@@ -113,6 +116,8 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
                               gridRow: "1",
                             }}
                             onClick={() => onRemove(seg.pid)}
+                            onMouseEnter={() => setHovered(seg.pid)}
+                            onMouseLeave={() => setHovered(null)}
                           >
                             <span className="overlay-name">{seg.name}</span>
                             {!seg.isEnd && <span className="cont-r">▸</span>}
