@@ -7,7 +7,7 @@ interface Props {
   onBpmChange: (bpm: number) => void
   onPlay: () => void
   onStop: () => void
-  onNudge: (direction: -1 | 1) => void
+  onNudge: (direction: -1 | 1, stepMs: number) => void
 }
 
 export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, onPlay, onStop, onNudge }: Props) {
@@ -42,7 +42,7 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     const now = performance.now()
     const prev = tapsRef.current
     prev.push(now)
-    if (prev.length > 10) prev.shift()
+    if (prev.length > 30) prev.shift()
     setTaps(prev.length)
 
     if (prev.length >= 4) {
@@ -100,6 +100,9 @@ function TrimmerButtons({ bpm, onBpmChange }: { bpm: number; onBpmChange: (bpm: 
   const disabled = bpm <= 0
   return (
     <span className="trimmer-group">
+      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.1))} disabled={disabled}>
+        −0.1
+      </button>
       <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.01))} disabled={disabled}>
         −0.01
       </button>
@@ -112,18 +115,33 @@ function TrimmerButtons({ bpm, onBpmChange }: { bpm: number; onBpmChange: (bpm: 
       <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.01))} disabled={disabled}>
         +0.01
       </button>
+      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.1))} disabled={disabled}>
+        +0.1
+      </button>
     </span>
   )
 }
 
-function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1) => void; disabled: boolean }) {
+function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) => void; disabled: boolean }) {
   return (
     <span className="nudge-group">
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1)} disabled={disabled}>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 100)} disabled={disabled}>
+        −100ms
+      </button>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 10)} disabled={disabled}>
         −10ms
       </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1)} disabled={disabled}>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 1)} disabled={disabled}>
+        −1ms
+      </button>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 1)} disabled={disabled}>
+        +1ms
+      </button>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 10)} disabled={disabled}>
         +10ms
+      </button>
+      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 100)} disabled={disabled}>
+        +100ms
       </button>
     </span>
   )

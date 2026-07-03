@@ -107,9 +107,9 @@ export default function App() {
     }
   }, [isPlaying, advanceBeat])
 
-  const handleNudge = useCallback((direction: -1 | 1) => {
+  const handleNudge = useCallback((direction: -1 | 1, stepMs: number) => {
     if (!isPlayingRef.current || bpmRef.current <= 0) return
-    nextBeatTimeRef.current += direction * 10  // shift by 10ms
+    nextBeatTimeRef.current += direction * stepMs
     if (performance.now() >= nextBeatTimeRef.current) {
       advanceBeat()
     }
