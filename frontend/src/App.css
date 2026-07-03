@@ -261,7 +261,7 @@ h2 {
   color: rgba(255,200,100,0.4);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  writing-mode: vertical-lr;
+  writing-mode: sideways-lr;
 }
 
 .phrase-rows {
