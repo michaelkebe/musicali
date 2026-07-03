@@ -1,19 +1,11 @@
 import { useRef } from "react"
 import type { PatternDef } from "../types"
+import { soundMap } from "../data/patterns"
 
 interface Props {
   onSelect: (pattern: PatternDef) => void
   onDoubleClick: (pattern: PatternDef) => void
   selectedId: string | null
-}
-
-const soundMap: Record<string, string> = {
-  "whip": "/sounds/whip.mp3",
-  "sugar-push": "/sounds/sugar-push.mp3",
-  "sugar-tuck": "/sounds/sugar-tuck.mp3",
-  "sweetheart": "/sounds/sweetheart.mp3",
-  "lsp": "/sounds/left-side-pass.mp3",
-  "underarm": "/sounds/underarm-turn.mp3",
 }
 
 export default function PatternPalette({ onSelect, onDoubleClick, selectedId }: Props) {

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import type { PatternDef, PlacedPattern } from "./types"
-import { allPatterns } from "./data/patterns"
+import { allPatterns, soundMap } from "./data/patterns"
 import PatternPalette from "./components/PatternPalette"
 import PhraseTimeline from "./components/PhraseTimeline"
 import PlaybackBar from "./components/PlaybackBar"
@@ -18,8 +18,13 @@ export default function App() {
   const nextBeatTimeRef = useRef(0)
   const bpmRef = useRef(bpm)
   const isPlayingRef = useRef(isPlaying)
+  const placedRef = useRef(placed)
+  const currentBeatRef = useRef(currentBeat)
+  const triggeredRef = useRef<Set<string>>(new Set())
   bpmRef.current = bpm
   isPlayingRef.current = isPlaying
+  placedRef.current = placed
+  currentBeatRef.current = currentBeat
 
   const handleSelect = useCallback((p: PatternDef) => {
     setSelected((prev) => (prev?.id === p.id ? null : p))
@@ -69,12 +74,33 @@ export default function App() {
 
   const advanceBeat = useCallback(() => {
     if (!isPlayingRef.current) return
-    setCurrentBeat((prev) => (prev >= 128 ? 1 : prev + 1))
+
+    setCurrentBeat((prev) => {
+      const next = prev >= 128 ? 1 : prev + 1
+      currentBeatRef.current = next
+      return next
+    })
+
     nextBeatTimeRef.current = performance.now() + 60000 / bpmRef.current
+
+    const upcomingBeat = currentBeatRef.current + 3
+    if (upcomingBeat <= 128) {
+      for (const p of placedRef.current) {
+        if (p.startBeat === upcomingBeat && !triggeredRef.current.has(p.id)) {
+          triggeredRef.current.add(p.id)
+          const src = soundMap[p.patternId]
+          if (src) {
+            const audio = new Audio(src)
+            audio.play()
+          }
+        }
+      }
+    }
   }, [])
 
   const handlePlay = useCallback(() => {
     if (bpm <= 0) return
+    triggeredRef.current = new Set()
     setIsPlaying(true)
     setCurrentBeat(1)
     nextBeatTimeRef.current = performance.now() + 60000 / bpm
