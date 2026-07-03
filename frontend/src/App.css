@@ -131,6 +131,15 @@ h2 {
   border: 1px solid #2a2a3e;
 }
 
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+
 .tap-group {
   display: flex;
   gap: 2px;
@@ -598,37 +607,12 @@ h2 {
     padding: 0.4rem;
   }
 
-  .tap-group {
-    order: 0;
-  }
-
-  .bpm-display {
-    order: 1;
-    min-width: auto;
-  }
-
-  .trimmer-group {
-    order: 2;
-  }
-
-  .ctrl-btn.play {
-    order: 3;
-  }
-
-  .ctrl-btn.stop {
-    order: 4;
-  }
-
-  .nudge-group {
-    order: 5;
-  }
-
-  .beat-display {
-    order: 6;
-    margin-left: 0;
+  .btn-group {
     width: 100%;
+  }
+
+  .btn-group:last-child {
     justify-content: center;
-    padding-top: 0.25rem;
   }
 
   .beat-dir {

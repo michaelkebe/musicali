@@ -14,23 +14,27 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
   const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
-      <BpmTapper onBpmChange={onBpmChange} />
-      <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
+      <span className="btn-group">
+        <BpmTapper onBpmChange={onBpmChange} />
+        <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
+        <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />
+      </span>
 
-      <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />
+      <span className="btn-group">
+        <button className="ctrl-btn play" onMouseDown={onPlay} disabled={isPlaying || bpm <= 0}>
+          ▶ Play
+        </button>
+        <button className="ctrl-btn stop" onMouseDown={onStop} disabled={!isPlaying}>
+          ■ Stop
+        </button>
+        <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
+      </span>
 
-      <button className="ctrl-btn play" onMouseDown={onPlay} disabled={isPlaying || bpm <= 0}>
-        ▶ Play
-      </button>
-      <button className="ctrl-btn stop" onMouseDown={onStop} disabled={!isPlaying}>
-        ■ Stop
-      </button>
-
-      <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
-
-      <span className="beat-display">
-        <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
-        <span className="beat-num-lg">{rowBeat}</span>
+      <span className="btn-group">
+        <span className="beat-display">
+          <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
+          <span className="beat-num-lg">{rowBeat}</span>
+        </span>
       </span>
     </div>
   )
