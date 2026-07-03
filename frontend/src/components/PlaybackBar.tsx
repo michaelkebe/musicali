@@ -166,23 +166,52 @@ function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) =
 
 function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   const [listening, setListening] = useState(false)
+  const [level, setLevel] = useState(0)
+  const [liveBpm, setLiveBpm] = useState(0)
   const listeningRef = useRef(false)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const analyzerRef = useRef<BpmAnalyzer | null>(null)
+  const levelRafRef = useRef<number | null>(null)
 
   useEffect(() => {
     return () => {
+      if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current)
       analyzerRef.current?.disconnect()
       streamRef.current?.getTracks().forEach((t) => t.stop())
       audioCtxRef.current?.close()
     }
   }, [])
 
+  const startLevelMeter = useCallback((ctx: AudioContext, source: MediaStreamAudioSourceNode) => {
+    const analyser = ctx.createAnalyser()
+    analyser.fftSize = 256
+    source.connect(analyser)
+    const data = new Uint8Array(analyser.frequencyBinCount)
+
+    const poll = () => {
+      if (!listeningRef.current) return
+      analyser.getByteTimeDomainData(data)
+      let sum = 0
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i] / 128 - 1
+        sum += v * v
+      }
+      const rms = Math.sqrt(sum / data.length)
+      setLevel(Math.min(1, rms * 3))
+      levelRafRef.current = requestAnimationFrame(poll)
+    }
+
+    levelRafRef.current = requestAnimationFrame(poll)
+  }, [])
+
   const toggle = useCallback(async () => {
     if (listeningRef.current) {
       listeningRef.current = false
       setListening(false)
+      setLevel(0)
+      setLiveBpm(0)
+      if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current)
       analyzerRef.current?.disconnect()
       analyzerRef.current = null
       streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -201,12 +230,19 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
       const analyzer = await createRealtimeBpmAnalyzer(ctx, { continuousAnalysis: true })
       source.connect(analyzer.node)
 
+      analyzer.on("bpm", (data) => {
+        const tempo = data.bpm[0].tempo
+        if (tempo > 20 && tempo < 400) setLiveBpm(Math.round(tempo))
+      })
+
       analyzer.on("bpmStable", (data) => {
         const tempo = data.bpm[0].tempo
         if (tempo > 20 && tempo < 400) {
           onBpmChange(Math.round(tempo * 1000) / 1000)
         }
       })
+
+      startLevelMeter(ctx, source)
 
       analyzerRef.current = analyzer
       audioCtxRef.current = ctx
@@ -216,11 +252,21 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     } catch {
       // mic denied
     }
-  }, [onBpmChange])
+  }, [onBpmChange, startLevelMeter])
 
   return (
-    <button className={`ctrl-btn listen${listening ? " listening" : ""}`} onMouseDown={toggle}>
-      {listening ? "🔊" : "🎤"}
-    </button>
+    <span className="listen-wrap">
+      <button className={`ctrl-btn listen${listening ? " listening" : ""}`} onMouseDown={toggle}>
+        {listening ? "🔊" : "🎤"}
+      </button>
+      {listening && (
+        <div className="listen-popup">
+          <div className="listen-meter">
+            <div className="listen-bar" style={{ width: `${level * 100}%` }} />
+          </div>
+          <span className="listen-live">{liveBpm > 0 ? `${liveBpm} BPM` : "..."}</span>
+        </div>
+      )}
+    </span>
   )
 }
