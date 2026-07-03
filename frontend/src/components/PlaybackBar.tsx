@@ -145,12 +145,6 @@ function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) =
       <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 10)} disabled={disabled}>
         −10ms
       </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 1)} disabled={disabled}>
-        −1ms
-      </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 1)} disabled={disabled}>
-        +1ms
-      </button>
       <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 10)} disabled={disabled}>
         +10ms
       </button>
