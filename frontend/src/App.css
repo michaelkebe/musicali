@@ -562,6 +562,11 @@ h2 {
   color: #6bcb77;
   animation: pulse-glow 1s ease-in-out infinite;
 }
+.ctrl-btn.listen.listen-error {
+  background: rgba(255,107,107,0.2);
+  border-color: rgba(255,107,107,0.5);
+  color: #ff6b6b;
+}
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 4px rgba(107,203,119,0.2); }
   50% { box-shadow: 0 0 12px rgba(107,203,119,0.4); }

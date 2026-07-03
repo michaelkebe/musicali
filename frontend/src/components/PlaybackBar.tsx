@@ -166,6 +166,7 @@ function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) =
 
 function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   const [listening, setListening] = useState(false)
+  const [error, setError] = useState(false)
   const [level, setLevel] = useState(0)
   const [liveBpm, setLiveBpm] = useState(0)
   const listeningRef = useRef(false)
@@ -205,27 +206,33 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     levelRafRef.current = requestAnimationFrame(poll)
   }, [])
 
+  const stopListening = useCallback(() => {
+    listeningRef.current = false
+    setListening(false)
+    setLevel(0)
+    setLiveBpm(0)
+    setError(false)
+    if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current)
+    analyzerRef.current?.disconnect()
+    analyzerRef.current = null
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
+    audioCtxRef.current?.close()
+    audioCtxRef.current = null
+  }, [])
+
   const toggle = useCallback(async () => {
     if (listeningRef.current) {
-      listeningRef.current = false
-      setListening(false)
-      setLevel(0)
-      setLiveBpm(0)
-      if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current)
-      analyzerRef.current?.disconnect()
-      analyzerRef.current = null
-      streamRef.current?.getTracks().forEach((t) => t.stop())
-      streamRef.current = null
-      audioCtxRef.current?.close()
-      audioCtxRef.current = null
+      stopListening()
       return
     }
 
+    setError(false)
+    const ctx = new AudioContext()
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      })
-      const ctx = new AudioContext()
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      if (ctx.state === "suspended") await ctx.resume()
       const source = ctx.createMediaStreamSource(stream)
       const analyzer = await createRealtimeBpmAnalyzer(ctx, { continuousAnalysis: true })
       source.connect(analyzer.node)
@@ -250,14 +257,16 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
       listeningRef.current = true
       setListening(true)
     } catch {
-      // mic denied
+      ctx.close()
+      setError(true)
+      setTimeout(() => setError(false), 3000)
     }
-  }, [onBpmChange, startLevelMeter])
+  }, [onBpmChange, startLevelMeter, stopListening])
 
   return (
     <span className="listen-wrap">
-      <button className={`ctrl-btn listen${listening ? " listening" : ""}`} onMouseDown={toggle}>
-        {listening ? "🔊" : "🎤"}
+      <button className={`ctrl-btn listen${listening ? " listening" : ""}${error ? " listen-error" : ""}`} onClick={toggle}>
+        {listening ? "🔊" : error ? "✕" : "🎤"}
       </button>
       {listening && (
         <div className="listen-popup">
