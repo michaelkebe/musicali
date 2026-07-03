@@ -56,11 +56,9 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
 
 function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { label: string; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
   const tapsRef = useRef<number[]>([])
-  const [taps, setTaps] = useState(0)
 
   useEffect(() => {
     tapsRef.current = []
-    setTaps(0)
   }, [resetKey])
 
   const handleTap = useCallback(() => {
@@ -68,7 +66,6 @@ function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { lab
     const prev = tapsRef.current
     prev.push(now)
     if (prev.length > 30) prev.shift()
-    setTaps(prev.length)
 
     if (prev.length >= 4) {
       const diffs: number[] = []
@@ -109,7 +106,6 @@ function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { lab
       <button className="ctrl-btn tap" onMouseDown={handleTap}>
         {label}
       </button>
-      <span className="tap-count" style={{ display: taps > 0 ? "inline" : "none" }}>{taps}</span>
     </span>
   )
 }
