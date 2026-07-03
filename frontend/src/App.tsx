@@ -7,6 +7,7 @@ import PlaybackBar from "./components/PlaybackBar"
 import "./App.css"
 
 const STORAGE_KEY = "musicali-placed"
+const BPM_STORAGE_KEY = "musicali-bpm"
 
 function loadPlaced(): PlacedPattern[] {
   try {
@@ -25,6 +26,25 @@ function savePlaced(placed: PlacedPattern[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(placed))
   } catch {
     // quota exceeded — silently degrade
+  }
+}
+
+function loadBpm(): number {
+  try {
+    const raw = localStorage.getItem(BPM_STORAGE_KEY)
+    if (raw === null) return 0
+    const parsed = Number(raw)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
+  } catch {
+    return 0
+  }
+}
+
+function saveBpm(bpm: number) {
+  try {
+    localStorage.setItem(BPM_STORAGE_KEY, JSON.stringify(bpm))
+  } catch {
+    // silently degrade
   }
 }
 
@@ -48,7 +68,7 @@ export default function App() {
     nextIdRef.current = nextIdFromPlaced(loaded)
     return loaded
   })
-  const [bpm, setBpm] = useState(0)
+  const [bpm, setBpm] = useState(() => loadBpm())
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
   const rafRef = useRef<number | null>(null)
@@ -183,6 +203,16 @@ export default function App() {
     }
   }, [placed])
 
+  // debounced save BPM to localStorage
+  const bpmSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (bpmSaveTimerRef.current) clearTimeout(bpmSaveTimerRef.current)
+    bpmSaveTimerRef.current = setTimeout(() => saveBpm(bpm), 500)
+    return () => {
+      if (bpmSaveTimerRef.current) clearTimeout(bpmSaveTimerRef.current)
+    }
+  }, [bpm])
+
   // stop playback when BPM is reset to 0
   useEffect(() => {
     if (bpm <= 0 && isPlaying) handleStop()
@@ -253,7 +283,7 @@ export default function App() {
           </div>
 
           {placed.length > 0 && (
-            <button className="clear-btn" onMouseDown={() => { setPlaced([]); localStorage.removeItem(STORAGE_KEY) }}>
+            <button className="clear-btn" onMouseDown={() => { setPlaced([]); setBpm(0); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(BPM_STORAGE_KEY) }}>
               Clear All
             </button>
           )}
