@@ -35,6 +35,19 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
 }
 
 function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
+  return (
+    <span className="tap-group">
+      <TapButton label="Tap" multiplier={1} onBpmChange={onBpmChange} spaceKey />
+      <TapButton label="Bar" multiplier={8} onBpmChange={onBpmChange} />
+      <TapButton label="Phr" multiplier={32} onBpmChange={onBpmChange} />
+      <button className="ctrl-btn tap-reset" onMouseDown={() => onBpmChange(0)}>
+        ↺
+      </button>
+    </span>
+  )
+}
+
+function TapButton({ label, multiplier, onBpmChange, spaceKey }: { label: string; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean }) {
   const tapsRef = useRef<number[]>([])
   const [taps, setTaps] = useState(0)
 
@@ -60,14 +73,15 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
         avg = diffs.reduce((a, b) => a + b, 0) / diffs.length
       }
 
-      const calculated = 60000 / avg
+      const calculated = 60000 * multiplier / avg
       if (calculated > 20 && calculated < 400) {
         onBpmChange(Math.round(calculated * 1000) / 1000)
       }
     }
-  }, [onBpmChange])
+  }, [onBpmChange, multiplier])
 
   useEffect(() => {
+    if (!spaceKey) return
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space") {
         e.preventDefault()
@@ -76,22 +90,14 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [handleTap])
-
-  const reset = useCallback(() => {
-    tapsRef.current = []
-    setTaps(0)
-    onBpmChange(0)
-  }, [onBpmChange])
+  }, [handleTap, spaceKey])
 
   return (
-    <span className="tap-group">
-      <button className="ctrl-btn tap" onMouseDown={handleTap}>
-        Tap
+    <span>
+      <button className={`ctrl-btn tap ${label === "Tap" ? "tap-beat" : "tap-structural"}`} onMouseDown={handleTap}>
+        {label}
       </button>
-      <button className="ctrl-btn tap-reset" onMouseDown={reset} disabled={taps === 0}>
-        ↺
-      </button>
+      <span className="tap-count" style={{ display: taps > 0 ? "inline" : "none" }}>{taps}</span>
     </span>
   )
 }

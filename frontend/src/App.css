@@ -149,9 +149,19 @@ h2 {
 }
 .ctrl-btn:hover:not(:disabled) { border-color: #888; color: #fff; }
 .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
-.ctrl-btn.tap { background: rgba(77,150,255,0.15); border-color: #4d96ff; color: #4d96ff; min-width: 3rem; }
+.ctrl-btn.tap { background: rgba(77,150,255,0.15); border-color: #4d96ff; color: #4d96ff; min-width: 2.5rem; }
 .ctrl-btn.tap:hover:not(:disabled) { background: rgba(77,150,255,0.25); }
+.ctrl-btn.tap-beat { min-width: 2.5rem; }
+.ctrl-btn.tap-structural { min-width: 2rem; font-size: 0.6rem; background: rgba(107,203,119,0.12); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+.ctrl-btn.tap-structural:hover:not(:disabled) { background: rgba(107,203,119,0.25); }
 .ctrl-btn.tap-reset { font-size: 0.9rem; padding: 0.35rem 0.5rem; }
+
+.tap-count {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.3);
+  font-family: monospace;
+  margin-left: 2px;
+}
 .ctrl-btn.play { background: rgba(107,203,119,0.15); border-color: #6bcb77; color: #6bcb77; }
 .ctrl-btn.play:hover:not(:disabled) { background: rgba(107,203,119,0.25); }
 .ctrl-btn.stop { background: rgba(255,107,107,0.15); border-color: #ff6b6b; color: #ff6b6b; }
