@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import type { PatternDef } from "../types"
-import { soundMap } from "../data/patterns"
+import { soundMap, patterns8, patterns6 } from "../data/patterns"
 
 interface Props {
   onSelect: (pattern: PatternDef) => void
@@ -33,18 +33,6 @@ export default function PatternPalette({ onSelect, onDoubleClick, selectedId }: 
     </div>
   )
 }
-
-const patterns8: PatternDef[] = [
-  { id: "whip", name: "Whip", beats: 8, description: "Basic 8-count whip" },
-]
-
-const patterns6: PatternDef[] = [
-  { id: "sugar-push", name: "Sugar Push", beats: 6, description: "Push with anchor" },
-  { id: "lsp", name: "Left Side Pass", beats: 6, description: "Pass on left" },
-  { id: "underarm", name: "Underarm Turn", beats: 6, description: "Turn under arm" },
-  { id: "sugar-tuck", name: "Sugar Tuck", beats: 6, description: "Tuck and turn" },
-  { id: "sweetheart", name: "Sweetheart", beats: 6, description: "Walk together" },
-]
 
 function Group({
   label,
