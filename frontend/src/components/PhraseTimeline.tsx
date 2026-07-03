@@ -4,6 +4,7 @@ import { allPatterns } from "../data/patterns"
 
 interface Props {
   placed: PlacedPattern[]
+  currentBeat: number
   onPlace: (startBeat: number) => void
   onRemove: (id: string) => void
 }
@@ -23,7 +24,7 @@ interface Segment {
   isEnd: boolean
 }
 
-export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
+export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove }: Props) {
   const [hovered, setHovered] = useState<string | null>(null)
   const getPattern = (patternId: string) => allPatterns.find((p) => p.id === patternId)!
 
@@ -89,7 +90,7 @@ export default function PhraseTimeline({ placed, onPlace, onRemove }: Props) {
                       {beats.map((beat, col) => (
                         <button
                           key={beat}
-                          className={`beat-cell ${col === 4 ? "bar-start" : ""}`}
+                          className={`beat-cell ${col === 4 ? "bar-start" : ""} ${beat === currentBeat ? "current" : ""}`}
                           disabled={occupied.has(beat)}
                           style={{
                             gridColumn: gridCol(col),

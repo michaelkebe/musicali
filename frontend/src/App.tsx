@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import type { PatternDef, PlacedPattern } from "./types"
 import { allPatterns } from "./data/patterns"
 import PatternPalette from "./components/PatternPalette"
 import PhraseTimeline from "./components/PhraseTimeline"
+import PlaybackBar from "./components/PlaybackBar"
 import "./App.css"
 
 let nextId = 1
@@ -10,6 +11,10 @@ let nextId = 1
 export default function App() {
   const [selected, setSelected] = useState<PatternDef | null>(null)
   const [placed, setPlaced] = useState<PlacedPattern[]>([])
+  const [bpm, setBpm] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentBeat, setCurrentBeat] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleSelect = useCallback((p: PatternDef) => {
     setSelected((prev) => (prev?.id === p.id ? null : p))
@@ -18,9 +23,8 @@ export default function App() {
   const handlePlace = useCallback(
     (startBeat: number) => {
       if (!selected) return
-      const end = startBeat + selected.beats - 1
-
       setPlaced((prev) => {
+        const end = startBeat + selected.beats - 1
         const overlaps = prev.some((p) => {
           const def = allPatterns.find((d) => d.id === p.patternId)!
           return startBeat <= p.startBeat + def.beats - 1 && end >= p.startBeat
@@ -58,6 +62,39 @@ export default function App() {
     })
   }, [])
 
+  const handlePlay = useCallback(() => {
+    if (bpm <= 0) return
+    setIsPlaying(true)
+    setCurrentBeat(1)
+  }, [bpm])
+
+  const handleStop = useCallback(() => {
+    setIsPlaying(false)
+    setCurrentBeat(0)
+  }, [])
+
+  // Playback timer
+  useEffect(() => {
+    if (isPlaying && bpm > 0) {
+      const intervalMs = 60000 / bpm
+      intervalRef.current = setInterval(() => {
+        setCurrentBeat((prev) => {
+          if (prev >= 128) {
+            setIsPlaying(false)
+            return 0
+          }
+          return prev + 1
+        })
+      }, intervalMs)
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [isPlaying, bpm])
+
   const totalBeats = placed.reduce(
     (sum, p) => sum + (allPatterns.find((d) => d.id === p.patternId)?.beats ?? 0),
     0,
@@ -82,7 +119,16 @@ export default function App() {
       <div className="app-layout">
         <PatternPalette onSelect={handleSelect} onDoubleClick={handleDoubleClick} selectedId={selected?.id ?? null} />
         <div className="main-col">
-          <PhraseTimeline placed={placed} onPlace={handlePlace} onRemove={handleRemove} />
+          <PlaybackBar
+            bpm={bpm}
+            isPlaying={isPlaying}
+            currentBeat={currentBeat}
+            onBpmChange={setBpm}
+            onPlay={handlePlay}
+            onStop={handleStop}
+          />
+
+          <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />
 
           <div className="stats-bar">
             <div className="stat">
