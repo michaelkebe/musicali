@@ -167,6 +167,17 @@ h2 {
 
 .beat-display {
   margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.beat-dir {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgba(255,200,100,0.35);
+  font-family: monospace;
+}
+.beat-num-lg {
   font-size: 4rem;
   font-weight: 700;
   color: rgba(255,200,100,0.6);

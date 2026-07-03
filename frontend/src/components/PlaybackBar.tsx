@@ -11,6 +11,7 @@ interface Props {
 }
 
 export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, onPlay, onStop, onNudge }: Props) {
+  const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
       <BpmTapper onBpmChange={onBpmChange} />
@@ -28,7 +29,8 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
       <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
 
       <span className="beat-display">
-        {((currentBeat - 1) % 8) + 1}
+        <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
+        <span className="beat-num-lg">{rowBeat}</span>
       </span>
     </div>
   )
