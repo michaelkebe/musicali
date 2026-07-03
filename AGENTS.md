@@ -27,7 +27,7 @@ frontend/src/
 
 ## Key model
 
-- **PatternDef**: `{ id, name, beats: 6|8, description }`
+- **PatternDef**: `{ id, name, beats: 6|8 }`
 - **PlacedPattern**: `{ id, patternId, startBeat }` — a pattern instance on the timeline
 - Timeline: 128 beats, 8 beats/row, 4 phrases of 32 beats
 - Overlap prevention: `allPatterns` lookup + overlap check in `setPlaced` updater
