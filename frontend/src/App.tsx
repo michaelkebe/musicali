@@ -6,11 +6,48 @@ import PhraseTimeline from "./components/PhraseTimeline"
 import PlaybackBar from "./components/PlaybackBar"
 import "./App.css"
 
-let nextId = 1
+const STORAGE_KEY = "musicali-placed"
+
+function loadPlaced(): PlacedPattern[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+  } catch {
+    return []
+  }
+}
+
+function savePlaced(placed: PlacedPattern[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(placed))
+  } catch {
+    // quota exceeded — silently degrade
+  }
+}
+
+function nextIdFromPlaced(placed: PlacedPattern[]): number {
+  let max = 0
+  for (const p of placed) {
+    const m = p.id.match(/^p(\d+)$/)
+    if (m) {
+      const n = parseInt(m[1], 10)
+      if (n > max) max = n
+    }
+  }
+  return max + 1
+}
 
 export default function App() {
   const [selected, setSelected] = useState<PatternDef | null>(null)
-  const [placed, setPlaced] = useState<PlacedPattern[]>([])
+  const nextIdRef = useRef(0)
+  const [placed, setPlaced] = useState<PlacedPattern[]>(() => {
+    const loaded = loadPlaced()
+    nextIdRef.current = nextIdFromPlaced(loaded)
+    return loaded
+  })
   const [bpm, setBpm] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
@@ -40,7 +77,7 @@ export default function App() {
           return startBeat <= p.startBeat + def.beats - 1 && end >= p.startBeat
         })
         if (overlaps) return prev
-        return [...prev, { id: `p${nextId++}`, patternId: selected.id, startBeat }]
+        return [...prev, { id: `p${nextIdRef.current++}`, patternId: selected.id, startBeat }]
       })
     },
     [selected],
@@ -65,7 +102,7 @@ export default function App() {
           if (occupied.has(b)) { free = false; break }
         }
         if (free) {
-          return [...prev, { id: `p${nextId++}`, patternId: pattern.id, startBeat: start }]
+          return [...prev, { id: `p${nextIdRef.current++}`, patternId: pattern.id, startBeat: start }]
         }
       }
       return prev
@@ -135,6 +172,16 @@ export default function App() {
       }
     }
   }, [isPlaying, advanceBeat])
+
+  // debounced save to localStorage
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => savePlaced(placed), 500)
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [placed])
 
   // stop playback when BPM is reset to 0
   useEffect(() => {
@@ -206,7 +253,7 @@ export default function App() {
           </div>
 
           {placed.length > 0 && (
-            <button className="clear-btn" onMouseDown={() => setPlaced([])}>
+            <button className="clear-btn" onMouseDown={() => { setPlaced([]); localStorage.removeItem(STORAGE_KEY) }}>
               Clear All
             </button>
           )}
