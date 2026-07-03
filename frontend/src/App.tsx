@@ -70,7 +70,7 @@ export default function App() {
           ),
         )
       : 0
-  const wrapCount = Math.floor(lastBeat / 32)
+  const phraseCount = totalBeats === 0 ? 0 : Math.ceil(lastBeat / 32)
 
   return (
     <div className="app">
@@ -96,7 +96,7 @@ export default function App() {
             </div>
             <div className="stat">
               <span className="stat-label">Phrases</span>
-              <span className="stat-value">{totalBeats === 0 ? 0 : wrapCount + 1}</span>
+              <span className="stat-value">{phraseCount}</span>
             </div>
             <div className="stat">
               <span className="stat-label">8-counts</span>
