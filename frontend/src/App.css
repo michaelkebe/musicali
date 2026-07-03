@@ -187,6 +187,8 @@ h2 {
   font-weight: 600;
   color: rgba(255,200,100,0.35);
   font-family: monospace;
+  width: 4ch;
+  text-align: right;
 }
 .beat-num-lg {
   font-size: 4rem;
