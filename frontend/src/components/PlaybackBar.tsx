@@ -35,21 +35,32 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
 }
 
 function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
+  const [resetKey, setResetKey] = useState(0)
+
+  const reset = useCallback(() => {
+    setResetKey((k) => k + 1)
+    onBpmChange(0)
+  }, [onBpmChange])
+
   return (
     <span className="tap-group">
-      <TapButton label="Beat" multiplier={1} onBpmChange={onBpmChange} spaceKey />
-      <TapButton label="Bar" multiplier={4} onBpmChange={onBpmChange} />
-      <TapButton label="Phrase" multiplier={32} onBpmChange={onBpmChange} />
-      <button className="ctrl-btn tap-reset" onMouseDown={() => onBpmChange(0)}>
+      <TapButton label="Beat" multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
+      <TapButton label="Bar" multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
+      <button className="ctrl-btn tap-reset" onMouseDown={reset}>
         ↺
       </button>
     </span>
   )
 }
 
-function TapButton({ label, multiplier, onBpmChange, spaceKey }: { label: string; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean }) {
+function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { label: string; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
   const tapsRef = useRef<number[]>([])
   const [taps, setTaps] = useState(0)
+
+  useEffect(() => {
+    tapsRef.current = []
+    setTaps(0)
+  }, [resetKey])
 
   const handleTap = useCallback(() => {
     const now = performance.now()
