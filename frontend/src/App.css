@@ -177,8 +177,8 @@ h2 {
 }
 
 @keyframes beat-flash {
-  0%   { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1);    opacity: 1; }
+  0%   { background: rgba(255, 200, 100, 0.5); }
+  100% { background: transparent; }
 }
 
 .beat-display {
@@ -186,7 +186,9 @@ h2 {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  animation: beat-flash 0.12s ease-out;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+  animation: beat-flash 0.25s ease-out;
 }
 .beat-dir {
   font-size: 1.5rem;
