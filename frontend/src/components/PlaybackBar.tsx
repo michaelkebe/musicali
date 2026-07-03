@@ -28,7 +28,7 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
       <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
 
       <span className="beat-display">
-        Beat {currentBeat} / 128
+        Beat {((currentBeat - 1) % 8) + 1} / 8
       </span>
     </div>
   )

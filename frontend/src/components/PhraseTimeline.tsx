@@ -99,7 +99,7 @@ export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove 
                           }}
                           onMouseDown={() => onPlace(beat)}
                         >
-                          <span className="beat-num">{beat}</span>
+                          <span className="beat-num">{((beat - 1) % 8) + 1}</span>
                         </button>
                       ))}
 
