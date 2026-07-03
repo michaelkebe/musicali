@@ -78,6 +78,7 @@ export default function App() {
     setCurrentBeat((prev) => {
       const next = prev >= 128 ? 1 : prev + 1
       currentBeatRef.current = next
+      if (prev >= 128) triggeredRef.current = new Set()
       return next
     })
 
