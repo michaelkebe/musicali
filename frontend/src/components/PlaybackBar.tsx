@@ -38,7 +38,7 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   return (
     <span className="tap-group">
       <TapButton label="Tap" multiplier={1} onBpmChange={onBpmChange} spaceKey />
-      <TapButton label="Bar" multiplier={8} onBpmChange={onBpmChange} />
+      <TapButton label="Bar" multiplier={4} onBpmChange={onBpmChange} />
       <TapButton label="Phr" multiplier={32} onBpmChange={onBpmChange} />
       <button className="ctrl-btn tap-reset" onMouseDown={() => onBpmChange(0)}>
         ↺
