@@ -147,6 +147,7 @@ h2 {
   transition: all 0.15s;
   font-family: inherit;
   touch-action: manipulation;
+  min-height: 2.4rem;
 }
 .ctrl-btn:hover:not(:disabled) { border-color: #888; color: #fff; }
 .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
@@ -511,7 +512,6 @@ h2 {
 }
 .ctrl-btn.trimmer {
   font-size: 0.6rem;
-  padding: 0.2rem 0.3rem;
   font-family: monospace;
   background: rgba(77,150,255,0.08);
   border-color: rgba(77,150,255,0.25);
@@ -528,7 +528,6 @@ h2 {
 }
 .ctrl-btn.nudge {
   font-size: 0.6rem;
-  padding: 0.2rem 0.3rem;
   font-family: monospace;
   background: rgba(255,200,100,0.08);
   border-color: rgba(255,200,100,0.25);
