@@ -7,7 +7,7 @@ Vite + React 19 + TypeScript 6. Single-page app, no backend.
 ## Commands
 
 ```sh
-npm run dev      # Vite dev server (port 5173, HTTPS with self-signed cert)
+npm run dev      # Vite dev server (port 5173)
 npm run build    # tsc -b && vite build
 npm run lint     # oxlint
 ```
@@ -43,5 +43,4 @@ frontend/src/
 - `verbatimModuleSyntax` — use `import type` for type-only imports
 - `erasableSyntaxOnly` — no enums, no namespaces, no parameter properties
 - `wavesurfer.js` in deps is unused (legacy from pivot)
-- `@vitejs/plugin-basic-ssl` enables HTTPS dev server — required for mic access on mobile
-- Mobile: access via `https://<your-ip>:5173` (self-signed cert warning, tap Proceed)
+- No tests yet
