@@ -188,7 +188,7 @@ h2 {
   gap: 0.5rem;
   padding: 0 0.75rem;
   border-radius: 6px;
-  animation: beat-flash 0.25s ease-out;
+  animation: beat-flash 0.1s ease-out;
 }
 .beat-dir {
   font-size: 1.5rem;
