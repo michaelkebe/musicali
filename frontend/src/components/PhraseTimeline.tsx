@@ -97,7 +97,7 @@ export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove 
                             gridRow: "1",
                             pointerEvents: occupied.has(beat) ? "none" : "auto",
                           }}
-                          onClick={() => onPlace(beat)}
+                          onMouseDown={() => onPlace(beat)}
                         >
                           <span className="beat-num">{beat}</span>
                         </button>
@@ -116,7 +116,7 @@ export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove 
                               gridColumn: `${gridCol(seg.startCol - 1)} / ${gridCol(seg.endCol - 1) + 1}`,
                               gridRow: "1",
                             }}
-                            onClick={() => onRemove(seg.pid)}
+                            onMouseDown={() => onRemove(seg.pid)}
                             onMouseEnter={() => setHovered(seg.pid)}
                             onMouseLeave={() => setHovered(null)}
                           >
@@ -149,7 +149,7 @@ export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove 
                   <span className="placed-name">{def.name}</span>
                   <span className="placed-beats">beats {p.startBeat}–{endBeat}</span>
                   <span className="placed-phrase">phrase {Math.ceil(p.startBeat / 32)}</span>
-                  <button className="placed-remove" onClick={() => onRemove(p.id)}>×</button>
+                  <button className="placed-remove" onMouseDown={() => onRemove(p.id)}>×</button>
                 </div>
               )
             })}

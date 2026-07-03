@@ -20,6 +20,7 @@ frontend/src/
   components/
     PatternPalette.tsx   # left sidebar: pattern list
     PhraseTimeline.tsx   # 128-beat grid with pattern overlays
+    PlaybackBar.tsx      # BPM tap counter + playback controls
   data/patterns.ts      # WCS pattern definitions (4×8-count, 6×6-count)
   types.ts              # PatternDef, PlacedPattern
 ```
@@ -35,7 +36,7 @@ frontend/src/
 
 - Single-click palette → select, then click beat to place
 - Double-click palette → auto-places on next free beat
-- Only commit when told
+- **ONLY commit when told** — never commit without an explicit request
 
 ## Gotchas
 

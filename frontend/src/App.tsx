@@ -14,7 +14,12 @@ export default function App() {
   const [bpm, setBpm] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const rafRef = useRef<number | null>(null)
+  const nextBeatTimeRef = useRef(0)
+  const bpmRef = useRef(bpm)
+  const isPlayingRef = useRef(isPlaying)
+  bpmRef.current = bpm
+  isPlayingRef.current = isPlaying
 
   const handleSelect = useCallback((p: PatternDef) => {
     setSelected((prev) => (prev?.id === p.id ? null : p))
@@ -62,10 +67,17 @@ export default function App() {
     })
   }, [])
 
+  const advanceBeat = useCallback(() => {
+    if (!isPlayingRef.current) return
+    setCurrentBeat((prev) => (prev >= 128 ? 1 : prev + 1))
+    nextBeatTimeRef.current = performance.now() + 60000 / bpmRef.current
+  }, [])
+
   const handlePlay = useCallback(() => {
     if (bpm <= 0) return
     setIsPlaying(true)
     setCurrentBeat(1)
+    nextBeatTimeRef.current = performance.now() + 60000 / bpm
   }, [bpm])
 
   const handleStop = useCallback(() => {
@@ -73,27 +85,35 @@ export default function App() {
     setCurrentBeat(0)
   }, [])
 
-  // Playback timer
+  // rAF polling loop — checks performance.now() against nextBeatTime each frame
   useEffect(() => {
-    if (isPlaying && bpm > 0) {
-      const intervalMs = 60000 / bpm
-      intervalRef.current = setInterval(() => {
-        setCurrentBeat((prev) => {
-          if (prev >= 128) {
-            setIsPlaying(false)
-            return 0
-          }
-          return prev + 1
-        })
-      }, intervalMs)
+    if (!isPlaying) return
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+
+    const loop = () => {
+      if (!isPlayingRef.current) return
+      if (performance.now() >= nextBeatTimeRef.current) {
+        advanceBeat()
+      }
+      rafRef.current = requestAnimationFrame(loop)
     }
+    rafRef.current = requestAnimationFrame(loop)
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
       }
     }
-  }, [isPlaying, bpm])
+  }, [isPlaying, advanceBeat])
+
+  const handleNudge = useCallback((direction: -1 | 1) => {
+    if (!isPlayingRef.current || bpmRef.current <= 0) return
+    nextBeatTimeRef.current += direction * 10  // shift by 10ms
+    if (performance.now() >= nextBeatTimeRef.current) {
+      advanceBeat()
+    }
+  }, [advanceBeat])
 
   const totalBeats = placed.reduce(
     (sum, p) => sum + (allPatterns.find((d) => d.id === p.patternId)?.beats ?? 0),
@@ -126,6 +146,7 @@ export default function App() {
             onBpmChange={setBpm}
             onPlay={handlePlay}
             onStop={handleStop}
+            onNudge={handleNudge}
           />
 
           <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />
@@ -151,7 +172,7 @@ export default function App() {
           </div>
 
           {placed.length > 0 && (
-            <button className="clear-btn" onClick={() => setPlaced([])}>
+            <button className="clear-btn" onMouseDown={() => setPlaced([])}>
               Clear All
             </button>
           )}

@@ -487,3 +487,37 @@ h2 {
   align-self: flex-start;
 }
 .clear-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+/* --- Trimmer --- */
+.trimmer-group {
+  display: flex;
+  gap: 2px;
+}
+.ctrl-btn.trimmer {
+  font-size: 0.6rem;
+  padding: 0.2rem 0.3rem;
+  font-family: monospace;
+  background: rgba(77,150,255,0.08);
+  border-color: rgba(77,150,255,0.25);
+  color: #4d96ff;
+}
+.ctrl-btn.trimmer:hover:not(:disabled) {
+  background: rgba(77,150,255,0.18);
+}
+
+/* --- Nudge --- */
+.nudge-group {
+  display: flex;
+  gap: 2px;
+}
+.ctrl-btn.nudge {
+  font-size: 0.6rem;
+  padding: 0.2rem 0.3rem;
+  font-family: monospace;
+  background: rgba(255,200,100,0.08);
+  border-color: rgba(255,200,100,0.25);
+  color: #ffd93d;
+}
+.ctrl-btn.nudge:hover:not(:disabled) {
+  background: rgba(255,200,100,0.18);
+}
