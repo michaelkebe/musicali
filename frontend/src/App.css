@@ -225,16 +225,18 @@ h2 {
   padding: 0;
   border-radius: 4px;
 }
-.timeline-row.phrase-even { background: transparent; }
-.timeline-row.phrase-odd { background: rgba(255,255,255,0.015); }
+.timeline-row.phrase-even { background: rgba(255,255,255,0.02); }
+.timeline-row.phrase-odd { background: rgba(255,255,255,0.08); }
 
 .phrase-group {
   display: flex;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-.phrase-group:last-child { margin-bottom: 0; }
+.phrase-group:last-child { margin-bottom: 0; border-bottom: none; }
 
 .phrase-label {
   width: 18px;
