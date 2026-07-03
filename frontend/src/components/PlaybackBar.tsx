@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect, type ReactNode } from "react"
+import { createRealtimeBpmAnalyzer } from "realtime-bpm-analyzer"
+import type { BpmAnalyzer } from "realtime-bpm-analyzer"
 
 interface Props {
   bpm: number
@@ -167,19 +169,11 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   const listeningRef = useRef(false)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const onsetsRef = useRef<number[]>([])
-  const rafRef = useRef<number | null>(null)
-  const energiesRef = useRef<number[]>([])
-  const lastOnsetRef = useRef(0)
-  const thresholdRef = useRef(0)
-
-  const MIN_GAP = 200
-  const MAX_ONSETS = 8
+  const analyzerRef = useRef<BpmAnalyzer | null>(null)
 
   useEffect(() => {
     return () => {
-      listeningRef.current = false
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      analyzerRef.current?.disconnect()
       streamRef.current?.getTracks().forEach((t) => t.stop())
       audioCtxRef.current?.close()
     }
@@ -189,87 +183,38 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     if (listeningRef.current) {
       listeningRef.current = false
       setListening(false)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      analyzerRef.current?.disconnect()
+      analyzerRef.current = null
       streamRef.current?.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
       audioCtxRef.current?.close()
       audioCtxRef.current = null
-      streamRef.current = null
       return
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      })
       const ctx = new AudioContext()
       const source = ctx.createMediaStreamSource(stream)
-      const analyser = ctx.createAnalyser()
-      analyser.fftSize = 1024
-      source.connect(analyser)
+      const analyzer = await createRealtimeBpmAnalyzer(ctx, { continuousAnalysis: true })
+      source.connect(analyzer.node)
 
+      analyzer.on("bpmStable", (data) => {
+        const tempo = data.bpm[0].tempo
+        if (tempo > 20 && tempo < 400) {
+          onBpmChange(Math.round(tempo * 1000) / 1000)
+        }
+      })
+
+      analyzerRef.current = analyzer
       audioCtxRef.current = ctx
       streamRef.current = stream
       listeningRef.current = true
       setListening(true)
-      onsetsRef.current = []
-      energiesRef.current = []
-      lastOnsetRef.current = 0
-      thresholdRef.current = 0
-
-      const data = new Uint8Array(analyser.frequencyBinCount)
-      const lowBin = Math.round(60 / (ctx.sampleRate / analyser.fftSize))
-      const highBin = Math.round(250 / (ctx.sampleRate / analyser.fftSize))
-
-      const detect = () => {
-        if (!listeningRef.current) return
-        analyser.getByteFrequencyData(data)
-
-        let energy = 0
-        for (let i = lowBin; i <= highBin; i++) energy += data[i]
-        energy /= highBin - lowBin + 1
-
-        const energies = energiesRef.current
-        energies.push(energy)
-        if (energies.length > 100) energies.shift()
-
-        if (energies.length >= 10) {
-          const avg = energies.reduce((a, b) => a + b, 0) / energies.length
-          thresholdRef.current = avg * 1.4
-
-          if (energy > thresholdRef.current) {
-            const now = performance.now()
-            if (now - lastOnsetRef.current >= MIN_GAP) {
-              lastOnsetRef.current = now
-              const onsets = onsetsRef.current
-              onsets.push(now)
-              if (onsets.length > MAX_ONSETS) onsets.shift()
-
-              if (onsets.length >= 4) {
-                const diffs: number[] = []
-                for (let i = 1; i < onsets.length; i++) diffs.push(onsets[i] - onsets[i - 1])
-
-                let avgDiff: number
-                if (diffs.length >= 4) {
-                  const sorted = [...diffs].sort((a, b) => a - b)
-                  const trimmed = sorted.slice(1, -1)
-                  avgDiff = trimmed.reduce((a, b) => a + b, 0) / trimmed.length
-                } else {
-                  avgDiff = diffs.reduce((a, b) => a + b, 0) / diffs.length
-                }
-
-                const calculated = 60000 / avgDiff
-                if (calculated > 20 && calculated < 400) {
-                  onBpmChange(Math.round(calculated * 1000) / 1000)
-                }
-              }
-            }
-          }
-        }
-
-        rafRef.current = requestAnimationFrame(detect)
-      }
-
-      rafRef.current = requestAnimationFrame(detect)
     } catch {
-      // mic denied — silently ignore
+      // mic denied
     }
   }, [onBpmChange])
 
