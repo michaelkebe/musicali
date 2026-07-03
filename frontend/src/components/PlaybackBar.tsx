@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useRef, useCallback, useEffect, type ReactNode } from "react"
 
 interface Props {
   bpm: number
@@ -44,9 +44,9 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
 
   return (
     <span className="tap-group">
-      <TapButton label="Each Beat" multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
-      <TapButton label="Each 4 Beats" multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
-      <TapButton label="Each 8 Beats" multiplier={8} onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Each<br />Beat</>} multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
+      <TapButton label={<>Each<br />4 Beats</>} multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Each<br />8 Beats</>} multiplier={8} onBpmChange={onBpmChange} resetKey={resetKey} />
       <button className="ctrl-btn tap-reset" onMouseDown={reset}>
         ↺
       </button>
@@ -54,7 +54,7 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   )
 }
 
-function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { label: string; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
+function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { label: ReactNode; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
   const tapsRef = useRef<number[]>([])
 
   useEffect(() => {
