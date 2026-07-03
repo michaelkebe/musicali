@@ -611,6 +611,16 @@ h2 {
   font-family: monospace;
   color: rgba(255,255,255,0.5);
 }
+.listen-popup-error {
+  border-color: rgba(255,107,107,0.3);
+}
+.listen-errmsg {
+  font-size: 0.65rem;
+  color: #ff6b6b;
+  font-family: monospace;
+  max-width: 200px;
+  word-break: break-word;
+}
 
 /* --- Mobile --- */
 @media (max-width: 640px) {

@@ -166,7 +166,7 @@ function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) =
 
 function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   const [listening, setListening] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState("")
   const [level, setLevel] = useState(0)
   const [liveBpm, setLiveBpm] = useState(0)
   const listeningRef = useRef(false)
@@ -211,7 +211,7 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
     setListening(false)
     setLevel(0)
     setLiveBpm(0)
-    setError(false)
+    setError("")
     if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current)
     analyzerRef.current?.disconnect()
     analyzerRef.current = null
@@ -227,7 +227,7 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
       return
     }
 
-    setError(false)
+    setError("")
     const ctx = new AudioContext()
 
     try {
@@ -256,10 +256,11 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
       streamRef.current = stream
       listeningRef.current = true
       setListening(true)
-    } catch {
+    } catch (e) {
       ctx.close()
-      setError(true)
-      setTimeout(() => setError(false), 3000)
+      const msg = e instanceof Error ? e.message : String(e)
+      setError(msg)
+      setTimeout(() => setError(""), 5000)
     }
   }, [onBpmChange, startLevelMeter, stopListening])
 
@@ -274,6 +275,11 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
             <div className="listen-bar" style={{ width: `${level * 100}%` }} />
           </div>
           <span className="listen-live">{liveBpm > 0 ? `${liveBpm} BPM` : "..."}</span>
+        </div>
+      )}
+      {error && (
+        <div className="listen-popup listen-popup-error">
+          <span className="listen-errmsg">{error}</span>
         </div>
       )}
     </span>
