@@ -37,9 +37,9 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
 function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   return (
     <span className="tap-group">
-      <TapButton label="Tap" multiplier={1} onBpmChange={onBpmChange} spaceKey />
+      <TapButton label="Beat" multiplier={1} onBpmChange={onBpmChange} spaceKey />
       <TapButton label="Bar" multiplier={4} onBpmChange={onBpmChange} />
-      <TapButton label="Phr" multiplier={32} onBpmChange={onBpmChange} />
+      <TapButton label="Phrase" multiplier={32} onBpmChange={onBpmChange} />
       <button className="ctrl-btn tap-reset" onMouseDown={() => onBpmChange(0)}>
         ↺
       </button>
@@ -94,7 +94,7 @@ function TapButton({ label, multiplier, onBpmChange, spaceKey }: { label: string
 
   return (
     <span>
-      <button className={`ctrl-btn tap ${label === "Tap" ? "tap-beat" : "tap-structural"}`} onMouseDown={handleTap}>
+      <button className="ctrl-btn tap" onMouseDown={handleTap}>
         {label}
       </button>
       <span className="tap-count" style={{ display: taps > 0 ? "inline" : "none" }}>{taps}</span>

@@ -151,9 +151,6 @@ h2 {
 .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
 .ctrl-btn.tap { background: rgba(77,150,255,0.15); border-color: #4d96ff; color: #4d96ff; min-width: 2.5rem; }
 .ctrl-btn.tap:hover:not(:disabled) { background: rgba(77,150,255,0.25); }
-.ctrl-btn.tap-beat { min-width: 2.5rem; }
-.ctrl-btn.tap-structural { min-width: 2rem; font-size: 0.6rem; background: rgba(107,203,119,0.12); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
-.ctrl-btn.tap-structural:hover:not(:disabled) { background: rgba(107,203,119,0.25); }
 .ctrl-btn.tap-reset { font-size: 0.9rem; padding: 0.35rem 0.5rem; }
 
 .tap-count {
