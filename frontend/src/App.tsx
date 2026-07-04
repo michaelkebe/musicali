@@ -71,6 +71,7 @@ export default function App() {
   const [bpm, setBpm] = useState(() => loadBpm())
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
+  const [fractionalBeat, setFractionalBeat] = useState(0)
   const rafRef = useRef<number | null>(null)
   const nextBeatTimeRef = useRef(0)
   const bpmRef = useRef(bpm)
@@ -169,6 +170,7 @@ export default function App() {
   const handleStop = useCallback(() => {
     setIsPlaying(false)
     setCurrentBeat(0)
+    setFractionalBeat(0)
   }, [])
 
   // rAF polling loop — checks performance.now() against nextBeatTime each frame
@@ -181,6 +183,13 @@ export default function App() {
       if (!isPlayingRef.current) return
       if (performance.now() >= nextBeatTimeRef.current) {
         advanceBeat()
+      }
+      const interval = 60000 / bpmRef.current
+      const beatStart = nextBeatTimeRef.current - interval
+      const progress = Math.min((performance.now() - beatStart) / interval, 1)
+      const frac = currentBeatRef.current + progress
+      if (frac <= 129) {
+        setFractionalBeat(frac)
       }
       rafRef.current = requestAnimationFrame(loop)
     }
@@ -260,7 +269,7 @@ export default function App() {
             onNudge={handleNudge}
           />
 
-          <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />
+          <PhraseTimeline placed={placed} currentBeat={currentBeat} fractionalBeat={fractionalBeat} onPlace={handlePlace} onRemove={handleRemove} />
 
           <div className="stats-bar">
             <div className="stat">

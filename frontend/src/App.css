@@ -209,10 +209,29 @@ h2 {
 
 /* Current beat highlight */
 .beat-cell.current {
-  background: linear-gradient(90deg, rgba(237, 34, 36, 0.5), rgba(243, 91, 34, 0.5), rgba(249, 150, 33, 0.5), rgba(245, 193, 30, 0.5), rgba(241, 235, 27, 0.5), rgba(241, 235, 27, 0.5), rgba(241, 235, 27, 0.5), rgba(99, 199, 32, 0.5), rgba(12, 155, 73, 0.5), rgba(33, 135, 141, 0.5), rgba(57, 84, 165, 0.5), rgba(97, 55, 155, 0.5), rgba(147, 40, 142, 0.5)) !important;
+  background: rgba(255, 200, 100, 0.25) !important;
   border: 1px solid rgba(255, 200, 100, 0.5);
   z-index: 3;
   box-shadow: 0 0 6px rgba(255, 200, 100, 0.3);
+}
+
+/* Rainbow cursor that slides smoothly between cells */
+.beat-cursor {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    rgba(237, 34, 36, 0.6), rgba(243, 91, 34, 0.6),
+    rgba(249, 150, 33, 0.6), rgba(245, 193, 30, 0.6),
+    rgba(241, 235, 27, 0.6), rgba(241, 235, 27, 0.6),
+    rgba(241, 235, 27, 0.6), rgba(99, 199, 32, 0.6),
+    rgba(12, 155, 73, 0.6), rgba(33, 135, 141, 0.6),
+    rgba(57, 84, 165, 0.6), rgba(97, 55, 155, 0.6),
+    rgba(147, 40, 142, 0.6));
+  mix-blend-mode: screen;
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 5;
+  will-change: transform;
 }
 .beat-cell.current .beat-num {
   color: rgba(255, 200, 100, 0.7) !important;
