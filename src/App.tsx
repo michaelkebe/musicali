@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import type { PatternDef, PlacedPattern } from "./types"
+import { version } from "../package.json"
 import { allPatterns } from "./data/patterns"
 import PatternPalette from "./components/PatternPalette"
 import PhraseTimeline from "./components/PhraseTimeline"
@@ -275,7 +276,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>Musicali</h1>
+        <h1>Musicali <span className="version">v{version}</span></h1>
         <p className="subtitle">WCS Phrase &amp; Pattern Visualizer</p>
       </header>
 

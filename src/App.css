@@ -28,6 +28,15 @@ h1 {
   background-clip: text;
 }
 
+.version {
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: #666;
+  -webkit-text-fill-color: #666;
+  vertical-align: super;
+  margin-left: 0.25rem;
+}
+
 .subtitle { color: #888; font-size: 0.9rem; margin-top: 0.25rem; }
 
 h2 {
