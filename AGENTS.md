@@ -42,5 +42,11 @@ src/
 
 - `verbatimModuleSyntax` — use `import type` for type-only imports
 - `erasableSyntaxOnly` — no enums, no namespaces, no parameter properties
-- `wavesurfer.js` in deps is unused (legacy from pivot)
 - No tests yet
+
+## Release
+
+- Deploy happens via GitHub Actions when a tag matching `v*` is pushed to `master`.
+- Version bumps in `package.json`/`package-lock.json` and `CHANGELOG.md` are done as separate commits before tagging.
+- The tag should match the version in `package.json` (e.g., `v0.0.2`).
+- Do **not** tag without an explicit request.

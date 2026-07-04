@@ -1,7 +1,7 @@
 {
   "name": "musicali",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,9 +13,7 @@
   "dependencies": {
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-text-to-speech": "^5.1.10",
-    "realtime-bpm-analyzer": "^5.0.15",
-    "wavesurfer.js": "^7.12.8"
+    "realtime-bpm-analyzer": "^5.0.15"
   },
   "devDependencies": {
     "@types/node": "^24.13.2",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.3] - 2026-07-04
+
+### Changed
+
+- Release process: deploy only on git tags matching `v*`
+- Removed unused dependencies (`wavesurfer.js`, `react-text-to-speech`)
+
 ## [0.0.2] - 2026-07-04
 
 ### Fixed

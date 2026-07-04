@@ -22,3 +22,13 @@ npm run dev      # Vite dev server (port 5173)
 npm run build    # tsc -b && vite build
 npm run lint     # oxlint
 ```
+
+## Release
+
+A new version is deployed only when a git tag matching `v*` is pushed.
+
+1. Bump version in `package.json` and `package-lock.json`
+2. Update `CHANGELOG.md`
+3. Commit to `master`
+4. `git tag v0.0.x && git push origin v0.0.x`
+```
