@@ -1,32 +1,24 @@
-# React + TypeScript + Vite
+# Musicali — WCS Musicality Trainer
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Visualize and arrange West Coast Swing patterns on a 128-beat timeline. Helps with phrasing, musicality, and choreography planning.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Pattern palette** — 6-count and 8-count WCS patterns. Single-click to select then place on a beat; double-click to auto-place on the next free beat.
+- **128-beat timeline** — 4 phrases of 32 beats, each beat is a click target. Patterns render as colored overlays with overlap prevention.
+- **BPM tap** — tap (1/2/4) to set tempo, or trim with fine-grained ±0.001 steps. Mic-based real-time BPM detection available.
+- **Playback** — beat cursor advances at the set BPM. Pattern announcements via speech synthesis (togglable).
+- **Nudge** — shift playback timing ±10ms/±100ms during playback.
+- **Persistence** — patterns, BPM, and announce preference saved to localStorage.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+React 19, TypeScript 6, Vite. Single-page app, no backend.
 
-## Expanding the Oxlint configuration
+## Commands
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm run dev      # Vite dev server (port 5173)
+npm run build    # tsc -b && vite build
+npm run lint     # oxlint
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
