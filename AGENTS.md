@@ -15,7 +15,7 @@ npm run lint     # oxlint
 ## Structure
 
 ```
-frontend/src/
+src/
   App.tsx               # root: state, pattern placement logic
   components/
     PatternPalette.tsx   # left sidebar: pattern list
