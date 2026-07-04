@@ -164,10 +164,10 @@ export default function App() {
 
     nextBeatTimeRef.current = performance.now() + 60000 / bpmRef.current
 
-    const upcomingBeat = currentBeatRef.current + 3
-    if (upcomingBeat <= 128 && announceRef.current) {
+    const targetBeat = ((currentBeatRef.current + 2) % 128) + 1
+    if (announceRef.current) {
       for (const p of placedRef.current) {
-        if (p.startBeat === upcomingBeat && !triggeredRef.current.has(p.id)) {
+        if (p.startBeat === targetBeat && !triggeredRef.current.has(p.id)) {
           triggeredRef.current.add(p.id)
           const def = allPatterns.find((d) => d.id === p.patternId)
           if (def) {
