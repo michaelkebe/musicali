@@ -17,10 +17,16 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Get version
+        id: get_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Verify version consistency
         run: |
@@ -61,6 +67,5 @@ jobs:
       - name: Smoke test deployed version
         run: |
           sleep 10
-          VERSION=$(node -p "require('./package.json').version")
-          curl -sL "${{ steps.deployment.outputs.page_url }}" | grep -q "v$VERSION" \
-            || { echo "Deploy verification failed — page does not show v$VERSION"; exit 1; }
+          curl -sL "${{ steps.deployment.outputs.page_url }}" | grep -q "v${{ needs.build.outputs.version }}" \
+            || { echo "Deploy verification failed — page does not show v${{ needs.build.outputs.version }}"; exit 1; }
