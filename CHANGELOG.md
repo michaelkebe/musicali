@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.4] - 2026-07-04
+
+### Changed
+
+- Version badge in header links to CHANGELOG.md on GitHub
+
 ## [0.0.3] - 2026-07-04
 
 ### Changed

@@ -276,7 +276,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>Musicali <span className="version">v{version}</span></h1>
+        <h1>Musicali <a className="version" href="https://github.com/michaelkebe/musicali/blob/master/CHANGELOG.md" target="_blank" rel="noopener noreferrer">v{version}</a></h1>
         <p className="subtitle">WCS Phrase &amp; Pattern Visualizer</p>
       </header>
 
