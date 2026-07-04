@@ -22,6 +22,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify version consistency
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          LOCK=$(node -p "require('./package-lock.json').version")
+          [ "$PKG" = "$LOCK" ] || { echo "Version mismatch: $PKG != $LOCK"; exit 1; }
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -51,3 +57,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Smoke test deployed version
+        run: |
+          sleep 10
+          VERSION=$(node -p "require('./package.json').version")
+          curl -sL "${{ steps.deployment.outputs.page_url }}" | grep -q "v$VERSION" \
+            || { echo "Deploy verification failed — page does not show v$VERSION"; exit 1; }

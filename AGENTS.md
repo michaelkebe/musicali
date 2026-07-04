@@ -47,6 +47,7 @@ src/
 ## Release
 
 - Deploy happens via GitHub Actions when a tag matching `v*` is pushed to `master`.
-- Version bumps in `package.json`/`package-lock.json` and `CHANGELOG.md` are done as separate commits before tagging.
-- The tag should match the version in `package.json` (e.g., `v0.0.2`).
-- Do **not** tag without an explicit request.
+- Use `./scripts/release.sh <version>` to bump, commit, and tag.
+  - Example: `./scripts/release.sh 0.0.5 && git push && git push origin v0.0.5`
+- The script validates: clean working tree, lockfile match, build succeeds.
+- Do **not** tag manually or without an explicit request.

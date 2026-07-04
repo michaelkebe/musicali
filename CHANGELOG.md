@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Release process: automated script, version consistency check, post-deploy smoke test
+- Removed unused `gh-pages` dependency
+
 ## [0.0.4] - 2026-07-04
 
 ### Changed
