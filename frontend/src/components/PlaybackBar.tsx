@@ -26,17 +26,17 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, onB
       </span>
 
       <span className="btn-group">
-        <button className="ctrl-btn play" onMouseDown={onPlay} disabled={isPlaying || bpm <= 0}>
+        <button className="ctrl-btn play" title="Start playback" onMouseDown={onPlay} disabled={isPlaying || bpm <= 0}>
           ▶ Play
         </button>
-        <button className="ctrl-btn stop" onMouseDown={onStop} disabled={!isPlaying}>
+        <button className="ctrl-btn stop" title="Stop playback" onMouseDown={onStop} disabled={!isPlaying}>
           ■ Stop
         </button>
         <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
       </span>
 
       <span className="btn-group">
-        <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} onMouseDown={onAnnounceToggle}>
+        <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} title="Toggle pattern announcements" onMouseDown={onAnnounceToggle}>
           {announce ? "🔊" : "🔇"}
         </button>
       </span>
@@ -61,17 +61,17 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
 
   return (
     <span className="tap-group">
-      <TapButton label={<>Every<br />1</>} multiplier={1} onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
-      <TapButton label={<>Every<br />2</>} multiplier={2} onBpmChange={onBpmChange} resetKey={resetKey} />
-      <TapButton label={<>Every<br />4</>} multiplier={4} onBpmChange={onBpmChange} resetKey={resetKey} />
-      <button className="ctrl-btn tap-reset" onMouseDown={reset}>
+      <TapButton label={<>Every<br />1</>} multiplier={1} tooltip="Tap every 1 beat" onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
+      <TapButton label={<>Every<br />2</>} multiplier={2} tooltip="Tap every 2 beats" onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Every<br />4</>} multiplier={4} tooltip="Tap every 4 beats" onBpmChange={onBpmChange} resetKey={resetKey} />
+      <button className="ctrl-btn tap-reset" title="Reset tap counter" onMouseDown={reset}>
         ↺
       </button>
     </span>
   )
 }
 
-function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { label: ReactNode; multiplier: number; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
+function TapButton({ label, multiplier, tooltip, onBpmChange, spaceKey, resetKey }: { label: ReactNode; multiplier: number; tooltip?: string; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
   const tapsRef = useRef<number[]>([])
 
   useEffect(() => {
@@ -120,7 +120,7 @@ function TapButton({ label, multiplier, onBpmChange, spaceKey, resetKey }: { lab
 
   return (
     <span>
-      <button className="ctrl-btn tap" onMouseDown={handleTap}>
+      <button className="ctrl-btn tap" title={tooltip} onMouseDown={handleTap}>
         {label}
       </button>
     </span>
@@ -131,22 +131,22 @@ function TrimmerButtons({ bpm, onBpmChange }: { bpm: number; onBpmChange: (bpm: 
   const disabled = bpm <= 0
   return (
     <span className="trimmer-group">
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.1))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM −0.1" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.1))} disabled={disabled}>
         −0.1
       </button>
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.01))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM −0.01" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.01))} disabled={disabled}>
         −0.01
       </button>
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.001))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM −0.001" onMouseDown={() => onBpmChange(Math.max(1, bpm - 0.001))} disabled={disabled}>
         −0.001
       </button>
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.001))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM +0.001" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.001))} disabled={disabled}>
         +0.001
       </button>
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.01))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM +0.01" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.01))} disabled={disabled}>
         +0.01
       </button>
-      <button className="ctrl-btn trimmer" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.1))} disabled={disabled}>
+      <button className="ctrl-btn trimmer" title="Trim BPM +0.1" onMouseDown={() => onBpmChange(Math.min(400, bpm + 0.1))} disabled={disabled}>
         +0.1
       </button>
     </span>
@@ -156,16 +156,16 @@ function TrimmerButtons({ bpm, onBpmChange }: { bpm: number; onBpmChange: (bpm: 
 function NudgeButtons({ onNudge, disabled }: { onNudge: (d: -1 | 1, s: number) => void; disabled: boolean }) {
   return (
     <span className="nudge-group">
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 100)} disabled={disabled}>
+      <button className="ctrl-btn nudge" title="Nudge playback earlier by 100ms" onMouseDown={() => onNudge(-1, 100)} disabled={disabled}>
         −100ms
       </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(-1, 10)} disabled={disabled}>
+      <button className="ctrl-btn nudge" title="Nudge playback earlier by 10ms" onMouseDown={() => onNudge(-1, 10)} disabled={disabled}>
         −10ms
       </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 10)} disabled={disabled}>
+      <button className="ctrl-btn nudge" title="Nudge playback later by 10ms" onMouseDown={() => onNudge(1, 10)} disabled={disabled}>
         +10ms
       </button>
-      <button className="ctrl-btn nudge" onMouseDown={() => onNudge(1, 100)} disabled={disabled}>
+      <button className="ctrl-btn nudge" title="Nudge playback later by 100ms" onMouseDown={() => onNudge(1, 100)} disabled={disabled}>
         +100ms
       </button>
     </span>
@@ -280,7 +280,7 @@ function BpmDetector({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
 
   return (
     <span className="listen-wrap">
-      <button className={`ctrl-btn listen${listening ? " listening" : ""}${error ? " listen-error" : ""}`} onClick={toggle}>
+      <button className={`ctrl-btn listen${listening ? " listening" : ""}${error ? " listen-error" : ""}`} title="Detect BPM from microphone" onClick={toggle}>
         {listening ? "🔊" : error ? "✕" : "🎤"}
       </button>
       {listening && (

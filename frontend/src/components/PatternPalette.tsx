@@ -50,6 +50,7 @@ function Group({
           <button
             key={p.id}
             className={`palette-item ${p.beats === 8 ? "count-8" : "count-6"} ${selectedId === p.id ? "selected" : ""}`}
+            title="Click to select, double-click to place"
             onClick={() => onSelect(p)}
             onDoubleClick={(e) => {
               e.stopPropagation()
