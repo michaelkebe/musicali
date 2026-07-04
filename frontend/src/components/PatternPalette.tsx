@@ -5,11 +5,13 @@ interface Props {
   onSelect: (pattern: PatternDef) => void
   onDoubleClick: (pattern: PatternDef) => void
   selectedId: string | null
+  announce: boolean
 }
 
-export default function PatternPalette({ onSelect, onDoubleClick, selectedId }: Props) {
+export default function PatternPalette({ onSelect, onDoubleClick, selectedId, announce }: Props) {
   const handleSelect = (p: PatternDef) => {
     onSelect(p)
+    if (!announce) return
     speechSynthesis.cancel()
     const utter = new SpeechSynthesisUtterance(p.name)
     utter.lang = "en-US";

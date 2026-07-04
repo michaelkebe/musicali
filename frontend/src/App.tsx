@@ -8,6 +8,7 @@ import "./App.css"
 
 const STORAGE_KEY = "musicali-placed"
 const BPM_STORAGE_KEY = "musicali-bpm"
+const ANNOUNCE_STORAGE_KEY = "musicali-announce"
 
 function loadPlaced(): PlacedPattern[] {
   try {
@@ -48,6 +49,24 @@ function saveBpm(bpm: number) {
   }
 }
 
+function loadAnnounce(): boolean {
+  try {
+    const raw = localStorage.getItem(ANNOUNCE_STORAGE_KEY)
+    if (raw === null) return true
+    return raw === "true"
+  } catch {
+    return true
+  }
+}
+
+function saveAnnounce(announce: boolean) {
+  try {
+    localStorage.setItem(ANNOUNCE_STORAGE_KEY, JSON.stringify(announce))
+  } catch {
+    // silently degrade
+  }
+}
+
 function nextIdFromPlaced(placed: PlacedPattern[]): number {
   let max = 0
   for (const p of placed) {
@@ -71,17 +90,20 @@ export default function App() {
   const [bpm, setBpm] = useState(() => loadBpm())
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
+  const [announce, setAnnounce] = useState(() => loadAnnounce())
   const rafRef = useRef<number | null>(null)
   const nextBeatTimeRef = useRef(0)
   const bpmRef = useRef(bpm)
   const isPlayingRef = useRef(isPlaying)
   const placedRef = useRef(placed)
   const currentBeatRef = useRef(currentBeat)
+  const announceRef = useRef(announce)
   const triggeredRef = useRef<Set<string>>(new Set())
   bpmRef.current = bpm
   isPlayingRef.current = isPlaying
   placedRef.current = placed
   currentBeatRef.current = currentBeat
+  announceRef.current = announce
 
   const handleSelect = useCallback((p: PatternDef) => {
     setSelected((prev) => (prev?.id === p.id ? null : p))
@@ -142,7 +164,7 @@ export default function App() {
     nextBeatTimeRef.current = performance.now() + 60000 / bpmRef.current
 
     const upcomingBeat = currentBeatRef.current + 3
-    if (upcomingBeat <= 128) {
+    if (upcomingBeat <= 128 && announceRef.current) {
       for (const p of placedRef.current) {
         if (p.startBeat === upcomingBeat && !triggeredRef.current.has(p.id)) {
           triggeredRef.current.add(p.id)
@@ -213,6 +235,16 @@ export default function App() {
     }
   }, [bpm])
 
+  // debounced save announce to localStorage
+  const announceSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (announceSaveTimerRef.current) clearTimeout(announceSaveTimerRef.current)
+    announceSaveTimerRef.current = setTimeout(() => saveAnnounce(announce), 500)
+    return () => {
+      if (announceSaveTimerRef.current) clearTimeout(announceSaveTimerRef.current)
+    }
+  }, [announce])
+
   // stop playback when BPM is reset to 0
   useEffect(() => {
     if (bpm <= 0 && isPlaying) handleStop()
@@ -248,16 +280,18 @@ export default function App() {
       </header>
 
       <div className="app-layout">
-        <PatternPalette onSelect={handleSelect} onDoubleClick={handleDoubleClick} selectedId={selected?.id ?? null} />
+        <PatternPalette onSelect={handleSelect} onDoubleClick={handleDoubleClick} selectedId={selected?.id ?? null} announce={announce} />
         <div className="main-col">
           <PlaybackBar
             bpm={bpm}
             isPlaying={isPlaying}
             currentBeat={currentBeat}
+            announce={announce}
             onBpmChange={setBpm}
             onPlay={handlePlay}
             onStop={handleStop}
             onNudge={handleNudge}
+            onAnnounceToggle={() => setAnnounce((a) => !a)}
           />
 
           <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />

@@ -6,13 +6,15 @@ interface Props {
   bpm: number
   isPlaying: boolean
   currentBeat: number
+  announce: boolean
   onBpmChange: (bpm: number) => void
   onPlay: () => void
   onStop: () => void
   onNudge: (direction: -1 | 1, stepMs: number) => void
+  onAnnounceToggle: () => void
 }
 
-export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, onPlay, onStop, onNudge }: Props) {
+export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, onBpmChange, onPlay, onStop, onNudge, onAnnounceToggle }: Props) {
   const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
@@ -31,6 +33,12 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, onBpmChange, 
           ■ Stop
         </button>
         <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
+      </span>
+
+      <span className="btn-group">
+        <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} onMouseDown={onAnnounceToggle}>
+          {announce ? "🔊" : "🔇"}
+        </button>
       </span>
 
       <span className="btn-group">
