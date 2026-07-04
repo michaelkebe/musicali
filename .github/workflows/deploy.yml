@@ -66,6 +66,12 @@ jobs:
 
       - name: Smoke test deployed version
         run: |
-          sleep 10
-          curl -sL "${{ steps.deployment.outputs.page_url }}" | grep -q "v${{ needs.build.outputs.version }}" \
-            || { echo "Deploy verification failed — page does not show v${{ needs.build.outputs.version }}"; exit 1; }
+          for i in $(seq 1 6); do
+            curl -sL "${{ steps.deployment.outputs.page_url }}" | grep -q "v${{ needs.build.outputs.version }}" \
+              && { echo "Deployed v${{ needs.build.outputs.version }} verified"; exit 0; }
+            [ "$i" -eq 6 ] && break
+            echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "Deploy verification failed — page does not show v${{ needs.build.outputs.version }}"
+          exit 1
