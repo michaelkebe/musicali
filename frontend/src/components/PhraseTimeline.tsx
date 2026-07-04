@@ -5,7 +5,6 @@ import { allPatterns } from "../data/patterns"
 interface Props {
   placed: PlacedPattern[]
   currentBeat: number
-  fractionalBeat: number
   onPlace: (startBeat: number) => void
   onRemove: (id: string) => void
 }
@@ -25,7 +24,7 @@ interface Segment {
   isEnd: boolean
 }
 
-export default function PhraseTimeline({ placed, currentBeat, fractionalBeat, onPlace, onRemove }: Props) {
+export default function PhraseTimeline({ placed, currentBeat, onPlace, onRemove }: Props) {
   const [hovered, setHovered] = useState<string | null>(null)
   const getPattern = (patternId: string) => allPatterns.find((p) => p.id === patternId)!
 
@@ -127,27 +126,6 @@ export default function PhraseTimeline({ placed, currentBeat, fractionalBeat, on
                           </div>
                         )
                       })}
-
-                      {(() => {
-                        const fb = fractionalBeat
-                        if (!(fb > 0 && fb <= 128)) return null
-                        const rowIdx = phraseIdx * 4 + row
-                        const cursorRow = Math.floor((fb - 1) / 8)
-                        if (cursorRow !== rowIdx) return null
-                        const colFloat = (fb - 1) % 8
-                        const colInt = Math.floor(colFloat)
-                        const frac = colFloat - colInt
-                        return (
-                          <div
-                            className="beat-cursor"
-                            style={{
-                              gridColumn: `${colInt + 1} / ${colInt + 2}`,
-                              gridRow: "1",
-                              transform: `translateX(${frac * 100}%)`,
-                            }}
-                          />
-                        )
-                      })()}
                     </div>
                   </div>
                 )
