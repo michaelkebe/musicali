@@ -621,6 +621,21 @@ h2 {
   opacity: 0.7;
 }
 
+/* --- Metronome --- */
+.ctrl-btn.metronome-btn {
+  font-size: 1rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(77,150,255,0.12);
+  border-color: rgba(77,150,255,0.3);
+}
+.ctrl-btn.metronome-btn.muted {
+  opacity: 0.4;
+  border-color: #444;
+}
+.ctrl-btn.metronome-btn.muted:hover {
+  opacity: 0.7;
+}
+
 /* --- Nudge --- */
 .nudge-group {
   display: flex;

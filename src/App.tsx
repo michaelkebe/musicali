@@ -11,6 +11,7 @@ import "./App.css"
 const STORAGE_KEY = "musicali-placed"
 const BPM_STORAGE_KEY = "musicali-bpm"
 const ANNOUNCE_STORAGE_KEY = "musicali-announce"
+const METRONOME_STORAGE_KEY = "musicali-metronome"
 const PLL_STORAGE_KEY = "musicali-pll"
 
 function loadPlaced(): PlacedPattern[] {
@@ -70,6 +71,24 @@ function saveAnnounce(announce: boolean) {
   }
 }
 
+function loadMetronome(): boolean {
+  try {
+    const raw = localStorage.getItem(METRONOME_STORAGE_KEY)
+    if (raw === null) return true
+    return raw === "true"
+  } catch {
+    return true
+  }
+}
+
+function saveMetronome(metronome: boolean) {
+  try {
+    localStorage.setItem(METRONOME_STORAGE_KEY, JSON.stringify(metronome))
+  } catch {
+    // silently degrade
+  }
+}
+
 function nextIdFromPlaced(placed: PlacedPattern[]): number {
   let max = 0
   for (const p of placed) {
@@ -94,6 +113,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
   const [announce, setAnnounce] = useState(() => loadAnnounce())
+  const [metronome, setMetronome] = useState(() => loadMetronome())
   const [usePll, setUsePll] = useState(() => localStorage.getItem(PLL_STORAGE_KEY) === "true")
   const { onTap, reset: pllReset, forceInterval, nudgeOffset, bpm: pllBpm, state: pllState, phase: pllPhase } = usePllBeat()
   const effectiveBpm = usePll ? pllBpm : bpm
@@ -104,14 +124,17 @@ export default function App() {
   const placedRef = useRef(placed)
   const currentBeatRef = useRef(currentBeat)
   const announceRef = useRef(announce)
+  const metronomeRef = useRef(metronome)
   const triggeredRef = useRef<Set<string>>(new Set())
   const usePllRef = useRef(usePll)
   const effectiveBpmRef = useRef(effectiveBpm)
+  const audioCtxRef = useRef<AudioContext | null>(null)
   bpmRef.current = bpm
   isPlayingRef.current = isPlaying
   placedRef.current = placed
   currentBeatRef.current = currentBeat
   announceRef.current = announce
+  metronomeRef.current = metronome
   usePllRef.current = usePll
   effectiveBpmRef.current = effectiveBpm
 
@@ -188,15 +211,38 @@ export default function App() {
     }
   }, [usePll, bpm, pllBpm, forceInterval])
 
+  function playMetronomeClick(beat: number) {
+    if (!metronomeRef.current || effectiveBpmRef.current <= 0) return
+    let ctx = audioCtxRef.current
+    if (!ctx) {
+      ctx = new AudioContext()
+      audioCtxRef.current = ctx
+    }
+    if (ctx.state === "suspended") ctx.resume()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = "sine"
+    osc.frequency.value = beat % 8 === 1 ? 1200 : 800
+    gain.gain.setValueAtTime(0.6, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03)
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.03)
+  }
+
   const advanceBeat = useCallback(() => {
     if (!isPlayingRef.current) return
 
-    setCurrentBeat((prev) => {
-      const next = prev >= 128 ? 1 : prev + 1
-      currentBeatRef.current = next
-      if (prev >= 128) triggeredRef.current = new Set()
-      return next
-    })
+    const next = currentBeatRef.current >= 128 ? 1 : currentBeatRef.current + 1
+    const wrapped = currentBeatRef.current >= 128
+    currentBeatRef.current = next
+
+    if (wrapped) triggeredRef.current = new Set()
+
+    setCurrentBeat(next)
+
+    playMetronomeClick(next)
 
     nextBeatTimeRef.current = nextBeatTimeRef.current + 60000 / effectiveBpmRef.current
 
@@ -222,6 +268,7 @@ export default function App() {
     triggeredRef.current = new Set()
     setIsPlaying(true)
     setCurrentBeat(1)
+    playMetronomeClick(1)
     nextBeatTimeRef.current = performance.now() + 60000 / effectiveBpm
   }, [effectiveBpm])
 
@@ -282,6 +329,16 @@ export default function App() {
     }
   }, [announce])
 
+  // debounced save metronome to localStorage
+  const metronomeSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (metronomeSaveTimerRef.current) clearTimeout(metronomeSaveTimerRef.current)
+    metronomeSaveTimerRef.current = setTimeout(() => saveMetronome(metronome), 500)
+    return () => {
+      if (metronomeSaveTimerRef.current) clearTimeout(metronomeSaveTimerRef.current)
+    }
+  }, [metronome])
+
   // stop playback when BPM is reset to 0
   useEffect(() => {
     if (effectiveBpm <= 0 && isPlaying) handleStop()
@@ -333,6 +390,8 @@ export default function App() {
             onStop={handleStop}
             onNudge={handleNudge}
             onAnnounceToggle={() => setAnnounce((a) => !a)}
+            metronome={metronome}
+            onMetronomeToggle={() => setMetronome((m) => !m)}
             onPllToggle={handlePllToggle}
             onTap={usePll ? onTap : undefined}
             onPllReset={usePll ? pllReset : undefined}

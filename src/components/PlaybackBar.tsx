@@ -9,12 +9,14 @@ interface Props {
   isPlaying: boolean
   currentBeat: number
   announce: boolean
+  metronome: boolean
   usePll: boolean
   onBpmChange: (bpm: number) => void
   onPlay: () => void
   onStop: () => void
   onNudge: (direction: -1 | 1, stepMs: number) => void
   onAnnounceToggle: () => void
+  onMetronomeToggle: () => void
   onPllToggle: () => void
   onTap?: (tapTime: number, multiplier: number) => void
   onPllReset?: () => void
@@ -22,7 +24,7 @@ interface Props {
   pllConfidence?: number
 }
 
-export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, usePll, onBpmChange, onPlay, onStop, onNudge, onAnnounceToggle, onPllToggle, onTap, onPllReset, pllPhase, pllConfidence }: Props) {
+export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, metronome, usePll, onBpmChange, onPlay, onStop, onNudge, onAnnounceToggle, onMetronomeToggle, onPllToggle, onTap, onPllReset, pllPhase, pllConfidence }: Props) {
   const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
@@ -57,6 +59,9 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, use
       <span className="btn-group">
         <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} title="Toggle pattern announcements" onPointerDown={onAnnounceToggle}>
           {announce ? "🔊" : "🔇"}
+        </button>
+        <button className={`ctrl-btn metronome-btn${metronome ? "" : " muted"}`} title="Toggle metronome click" onPointerDown={onMetronomeToggle}>
+          {metronome ? "🎵" : "🎵"}
         </button>
       </span>
 

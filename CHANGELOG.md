@@ -2,10 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- Metronome click (Web Audio API) with toggle button, synced to beat playback; beat 1 of each 8-count is higher-pitched
+
 ### Changed
 
 - All `onMouseDown` handlers replaced with `onPointerDown` for immediate mobile touch response
 - Added `touch-action: manipulation` to all interactive elements to suppress 300ms tap delay
+
+### Fixed
+
+- PLL-derived BPM now persists to localStorage instead of only the legacy averaged BPM
 
 ## [0.0.8] - 2026-07-06
 
