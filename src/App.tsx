@@ -262,15 +262,15 @@ export default function App() {
     }
   }, [placed])
 
-  // debounced save BPM to localStorage
+  // debounced save BPM to localStorage (saves whichever BPM is active)
   const bpmSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (bpmSaveTimerRef.current) clearTimeout(bpmSaveTimerRef.current)
-    bpmSaveTimerRef.current = setTimeout(() => saveBpm(bpm), 500)
+    bpmSaveTimerRef.current = setTimeout(() => saveBpm(effectiveBpm), 500)
     return () => {
       if (bpmSaveTimerRef.current) clearTimeout(bpmSaveTimerRef.current)
     }
-  }, [bpm])
+  }, [effectiveBpm])
 
   // debounced save announce to localStorage
   const announceSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
