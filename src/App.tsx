@@ -5,11 +5,13 @@ import { allPatterns } from "./data/patterns"
 import PatternPalette from "./components/PatternPalette"
 import PhraseTimeline from "./components/PhraseTimeline"
 import PlaybackBar from "./components/PlaybackBar"
+import { usePllBeat } from "./hooks/usePllBeat"
 import "./App.css"
 
 const STORAGE_KEY = "musicali-placed"
 const BPM_STORAGE_KEY = "musicali-bpm"
 const ANNOUNCE_STORAGE_KEY = "musicali-announce"
+const PLL_STORAGE_KEY = "musicali-pll"
 
 function loadPlaced(): PlacedPattern[] {
   try {
@@ -92,6 +94,9 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentBeat, setCurrentBeat] = useState(0)
   const [announce, setAnnounce] = useState(() => loadAnnounce())
+  const [usePll, setUsePll] = useState(() => localStorage.getItem(PLL_STORAGE_KEY) === "true")
+  const { onTap, reset: pllReset, forceInterval, nudgeOffset, bpm: pllBpm, state: pllState, phase: pllPhase } = usePllBeat()
+  const effectiveBpm = usePll ? pllBpm : bpm
   const rafRef = useRef<number | null>(null)
   const nextBeatTimeRef = useRef(0)
   const bpmRef = useRef(bpm)
@@ -100,11 +105,15 @@ export default function App() {
   const currentBeatRef = useRef(currentBeat)
   const announceRef = useRef(announce)
   const triggeredRef = useRef<Set<string>>(new Set())
+  const usePllRef = useRef(usePll)
+  const effectiveBpmRef = useRef(effectiveBpm)
   bpmRef.current = bpm
   isPlayingRef.current = isPlaying
   placedRef.current = placed
   currentBeatRef.current = currentBeat
   announceRef.current = announce
+  usePllRef.current = usePll
+  effectiveBpmRef.current = effectiveBpm
 
   const handleSelect = useCallback((p: PatternDef) => {
     setSelected((prev) => (prev?.id === p.id ? null : p))
@@ -152,6 +161,33 @@ export default function App() {
     })
   }, [])
 
+  const handleBpmChange = useCallback((newBpm: number) => {
+    if (usePllRef.current) {
+      if (newBpm <= 0) {
+        pllReset()
+      } else {
+        forceInterval(60000 / newBpm)
+      }
+    } else {
+      setBpm(newBpm)
+    }
+  }, [pllReset, forceInterval])
+
+  const handlePllToggle = useCallback(() => {
+    setUsePll((prev) => {
+      const next = !prev
+      localStorage.setItem(PLL_STORAGE_KEY, String(next))
+      return next
+    })
+  }, [])
+
+  // Seed PLL from legacy BPM when toggling on
+  useEffect(() => {
+    if (usePll && bpm > 0 && pllBpm <= 0) {
+      forceInterval(60000 / bpm)
+    }
+  }, [usePll, bpm, pllBpm, forceInterval])
+
   const advanceBeat = useCallback(() => {
     if (!isPlayingRef.current) return
 
@@ -162,7 +198,7 @@ export default function App() {
       return next
     })
 
-    nextBeatTimeRef.current = performance.now() + 60000 / bpmRef.current
+    nextBeatTimeRef.current = nextBeatTimeRef.current + 60000 / effectiveBpmRef.current
 
     const targetBeat = ((currentBeatRef.current + 2) % 128) + 1
     if (announceRef.current) {
@@ -182,12 +218,12 @@ export default function App() {
   }, [])
 
   const handlePlay = useCallback(() => {
-    if (bpm <= 0) return
+    if (effectiveBpm <= 0) return
     triggeredRef.current = new Set()
     setIsPlaying(true)
     setCurrentBeat(1)
-    nextBeatTimeRef.current = performance.now() + 60000 / bpm
-  }, [bpm])
+    nextBeatTimeRef.current = performance.now() + 60000 / effectiveBpm
+  }, [effectiveBpm])
 
   const handleStop = useCallback(() => {
     setIsPlaying(false)
@@ -248,16 +284,19 @@ export default function App() {
 
   // stop playback when BPM is reset to 0
   useEffect(() => {
-    if (bpm <= 0 && isPlaying) handleStop()
-  }, [bpm, isPlaying, handleStop])
+    if (effectiveBpm <= 0 && isPlaying) handleStop()
+  }, [effectiveBpm, isPlaying, handleStop])
 
   const handleNudge = useCallback((direction: -1 | 1, stepMs: number) => {
-    if (!isPlayingRef.current || bpmRef.current <= 0) return
+    if (!isPlayingRef.current || effectiveBpmRef.current <= 0) return
+    if (usePllRef.current) {
+      nudgeOffset(direction * stepMs)
+    }
     nextBeatTimeRef.current += direction * stepMs
     if (performance.now() >= nextBeatTimeRef.current) {
       advanceBeat()
     }
-  }, [advanceBeat])
+  }, [advanceBeat, nudgeOffset])
 
   const totalBeats = placed.reduce(
     (sum, p) => sum + (allPatterns.find((d) => d.id === p.patternId)?.beats ?? 0),
@@ -284,15 +323,21 @@ export default function App() {
         <PatternPalette onSelect={handleSelect} onDoubleClick={handleDoubleClick} selectedId={selected?.id ?? null} announce={announce} />
         <div className="main-col">
           <PlaybackBar
-            bpm={bpm}
+            bpm={effectiveBpm}
             isPlaying={isPlaying}
             currentBeat={currentBeat}
             announce={announce}
-            onBpmChange={setBpm}
+            usePll={usePll}
+            onBpmChange={handleBpmChange}
             onPlay={handlePlay}
             onStop={handleStop}
             onNudge={handleNudge}
             onAnnounceToggle={() => setAnnounce((a) => !a)}
+            onPllToggle={handlePllToggle}
+            onTap={usePll ? onTap : undefined}
+            onPllReset={usePll ? pllReset : undefined}
+            pllPhase={usePll ? pllPhase : undefined}
+            pllConfidence={usePll ? pllState.confidence : undefined}
           />
 
           <PhraseTimeline placed={placed} currentBeat={currentBeat} onPlace={handlePlace} onRemove={handleRemove} />
@@ -318,7 +363,7 @@ export default function App() {
           </div>
 
           {placed.length > 0 && (
-            <button className="clear-btn" title="Clear all patterns and reset BPM" onMouseDown={() => { setPlaced([]); setBpm(0); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(BPM_STORAGE_KEY) }}>
+            <button className="clear-btn" title="Clear all patterns and reset BPM" onMouseDown={() => { setPlaced([]); setBpm(0); if (usePllRef.current) pllReset(); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(BPM_STORAGE_KEY) }}>
               Clear All
             </button>
           )}

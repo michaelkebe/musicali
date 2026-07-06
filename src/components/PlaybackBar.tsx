@@ -1,28 +1,47 @@
 import { useState, useRef, useCallback, useEffect, type ReactNode } from "react"
 import { createRealtimeBpmAnalyzer } from "realtime-bpm-analyzer"
 import type { BpmAnalyzer } from "realtime-bpm-analyzer"
+import type { PllPhase } from "../hooks/usePllBeat"
+import { computeBpmFromTaps } from "../utils/bpm"
 
 interface Props {
   bpm: number
   isPlaying: boolean
   currentBeat: number
   announce: boolean
+  usePll: boolean
   onBpmChange: (bpm: number) => void
   onPlay: () => void
   onStop: () => void
   onNudge: (direction: -1 | 1, stepMs: number) => void
   onAnnounceToggle: () => void
+  onPllToggle: () => void
+  onTap?: (tapTime: number, multiplier: number) => void
+  onPllReset?: () => void
+  pllPhase?: PllPhase
+  pllConfidence?: number
 }
 
-export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, onBpmChange, onPlay, onStop, onNudge, onAnnounceToggle }: Props) {
+export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, usePll, onBpmChange, onPlay, onStop, onNudge, onAnnounceToggle, onPllToggle, onTap, onPllReset, pllPhase, pllConfidence }: Props) {
   const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
       <span className="btn-group">
         <BpmDetector onBpmChange={onBpmChange} />
-        <BpmTapper onBpmChange={onBpmChange} />
+        <BpmTapper onBpmChange={onBpmChange} usePll={usePll} onTap={onTap} onReset={onPllReset} />
         <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
-        <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />
+        {usePll && pllPhase && (
+          <span className={`pll-indicator pll-${pllPhase}`} title={`${pllPhase}${pllConfidence !== undefined ? ` (${Math.round(pllConfidence * 100)}%)` : ""}`}>
+            <span className="pll-phase-label">{pllPhase === "idle" ? "···" : pllPhase === "regression" ? "FIT" : "LCK"}</span>
+            <span className="pll-confidence">
+              <span className="pll-confidence-bar" style={{ width: `${(pllConfidence ?? 0) * 100}%` }} />
+            </span>
+          </span>
+        )}
+        <button className="ctrl-btn mode-toggle" title={`Switch to ${usePll ? "averaged" : "PLL"} mode`} onMouseDown={onPllToggle}>
+          {usePll ? "PLL" : "AVG"}
+        </button>
+        {!usePll && <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />}
       </span>
 
       <span className="btn-group">
@@ -51,19 +70,23 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, onB
   )
 }
 
-function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
+function BpmTapper({ onBpmChange, usePll, onTap, onReset }: { onBpmChange: (bpm: number) => void; usePll?: boolean; onTap?: (tapTime: number, multiplier: number) => void; onReset?: () => void }) {
   const [resetKey, setResetKey] = useState(0)
 
   const reset = useCallback(() => {
     setResetKey((k) => k + 1)
-    onBpmChange(0)
-  }, [onBpmChange])
+    if (usePll) {
+      onReset?.()
+    } else {
+      onBpmChange(0)
+    }
+  }, [onBpmChange, usePll, onReset])
 
   return (
     <span className="tap-group">
-      <TapButton label={<>Every<br />1</>} multiplier={1} tooltip="Tap every 1 beat" onBpmChange={onBpmChange} spaceKey resetKey={resetKey} />
-      <TapButton label={<>Every<br />2</>} multiplier={2} tooltip="Tap every 2 beats" onBpmChange={onBpmChange} resetKey={resetKey} />
-      <TapButton label={<>Every<br />4</>} multiplier={4} tooltip="Tap every 4 beats" onBpmChange={onBpmChange} resetKey={resetKey} />
+      <TapButton label={<>Every<br />1</>} multiplier={1} tooltip="Tap every 1 beat" onBpmChange={onBpmChange} onTap={onTap} spaceKey resetKey={resetKey} usePll={usePll} />
+      <TapButton label={<>Every<br />2</>} multiplier={2} tooltip="Tap every 2 beats" onBpmChange={onBpmChange} onTap={onTap} resetKey={resetKey} usePll={usePll} />
+      <TapButton label={<>Every<br />4</>} multiplier={4} tooltip="Tap every 4 beats" onBpmChange={onBpmChange} onTap={onTap} resetKey={resetKey} usePll={usePll} />
       <button className="ctrl-btn tap-reset" title="Reset tap counter" onMouseDown={reset}>
         ↺
       </button>
@@ -71,7 +94,7 @@ function BpmTapper({ onBpmChange }: { onBpmChange: (bpm: number) => void }) {
   )
 }
 
-function TapButton({ label, multiplier, tooltip, onBpmChange, spaceKey, resetKey }: { label: ReactNode; multiplier: number; tooltip?: string; onBpmChange: (bpm: number) => void; spaceKey?: boolean; resetKey: number }) {
+function TapButton({ label, multiplier, tooltip, onBpmChange, onTap, spaceKey, resetKey, usePll }: { label: ReactNode; multiplier: number; tooltip?: string; onBpmChange: (bpm: number) => void; onTap?: (tapTime: number, multiplier: number) => void; spaceKey?: boolean; resetKey: number; usePll?: boolean }) {
   const tapsRef = useRef<number[]>([])
 
   useEffect(() => {
@@ -79,32 +102,20 @@ function TapButton({ label, multiplier, tooltip, onBpmChange, spaceKey, resetKey
   }, [resetKey])
 
   const handleTap = useCallback(() => {
+    if (usePll) {
+      onTap?.(performance.now(), multiplier)
+      return
+    }
     const now = performance.now()
     const prev = tapsRef.current
     prev.push(now)
     if (prev.length > 30) prev.shift()
 
-    if (prev.length >= 4) {
-      const diffs: number[] = []
-      for (let i = 1; i < prev.length; i++) {
-        diffs.push(prev[i] - prev[i - 1])
-      }
-
-      let avg: number
-      if (diffs.length >= 4) {
-        const sorted = [...diffs].sort((a, b) => a - b)
-        const trimmed = sorted.slice(1, -1)
-        avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length
-      } else {
-        avg = diffs.reduce((a, b) => a + b, 0) / diffs.length
-      }
-
-      const calculated = 60000 * multiplier / avg
-      if (calculated > 20 && calculated < 400) {
-        onBpmChange(Math.round(calculated * 1000) / 1000)
-      }
+    const bpm = computeBpmFromTaps(prev, multiplier)
+    if (bpm !== null) {
+      onBpmChange(bpm)
     }
-  }, [onBpmChange, multiplier])
+  }, [onBpmChange, multiplier, usePll, onTap])
 
   useEffect(() => {
     if (!spaceKey) return

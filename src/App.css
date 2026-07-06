@@ -534,6 +534,58 @@ h2 {
 }
 .clear-btn:hover { border-color: #ff6b6b; color: #ff6b6b; }
 
+/* --- Mode toggle --- */
+.ctrl-btn.mode-toggle {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  min-width: 38px;
+  padding: 0.35rem 0.4rem;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: #888;
+}
+.ctrl-btn.mode-toggle:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+}
+
+/* --- PLL indicator --- */
+.pll-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+.pll-phase-label {
+  min-width: 2.8ch;
+  text-align: center;
+}
+.pll-idle .pll-phase-label { color: #666; }
+.pll-regression .pll-phase-label { color: #ffd93d; }
+.pll-tracking .pll-phase-label { color: #6bcb77; }
+
+.pll-confidence {
+  display: inline-flex;
+  align-items: center;
+  width: 28px;
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pll-confidence-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.15s ease;
+}
+.pll-idle .pll-confidence-bar { background: #555; }
+.pll-regression .pll-confidence-bar { background: #ffd93d; }
+.pll-tracking .pll-confidence-bar { background: #6bcb77; }
+
 /* --- Trimmer --- */
 .trimmer-group {
   display: flex;

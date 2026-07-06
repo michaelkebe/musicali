@@ -10,6 +10,8 @@ Vite + React 19 + TypeScript 6. Single-page app, no backend.
 npm run dev      # Vite dev server (port 5173)
 npm run build    # tsc -b && vite build
 npm run lint     # oxlint
+npm test         # vitest run (unit + integration)
+npm run test:e2e # playwright test (browser E2E)
 ```
 
 ## Structure
@@ -21,8 +23,12 @@ src/
     PatternPalette.tsx   # left sidebar: pattern list
     PhraseTimeline.tsx   # 128-beat grid with pattern overlays
     PlaybackBar.tsx      # BPM tap counter + playback controls
+  hooks/
+    usePllBeat.ts       # PLL beat tracking (fitLine, pllReducer)
+  utils/
+    bpm.ts              # Legacy tap averaging BPM calc
   data/patterns.ts      # WCS pattern definitions (4×8-count, 6×6-count)
-  types.ts              # PatternDef, PlacedPattern
+  types.ts              # PatternDef, PlacedPattern, PllState
 ```
 
 ## Key model
@@ -42,7 +48,6 @@ src/
 
 - `verbatimModuleSyntax` — use `import type` for type-only imports
 - `erasableSyntaxOnly` — no enums, no namespaces, no parameter properties
-- No tests yet
 
 ## Release
 
