@@ -62,11 +62,14 @@ export function pllReducer(prev: PllState, tapTime: number, multiplier: number):
     const predictedBeat = Math.round(rawBeat / multiplier) * multiplier
     const predictedTime = prev.offsetMs + predictedBeat * prev.intervalMs
     const error = tapTime - predictedTime
+    const newOffsetMs = prev.offsetMs + error * PLL_CONFIG.TRACKING_OFFSET_LERP
+    const newIntervalMs = Math.max(PLL_CONFIG.MIN_INTERVAL_MS, prev.intervalMs + error * PLL_CONFIG.TRACKING_INTERVAL_LERP)
+    const newConfidence = Math.min(1, prev.confidence + PLL_CONFIG.TRACKING_CONFIDENCE_INCREMENT)
     return {
       ...prev,
-      offsetMs: prev.offsetMs + error * PLL_CONFIG.TRACKING_OFFSET_LERP,
-      intervalMs: Math.max(PLL_CONFIG.MIN_INTERVAL_MS, prev.intervalMs + error * PLL_CONFIG.TRACKING_INTERVAL_LERP),
-      confidence: Math.min(1, prev.confidence + PLL_CONFIG.TRACKING_CONFIDENCE_INCREMENT),
+      offsetMs: newOffsetMs,
+      intervalMs: newIntervalMs,
+      confidence: newConfidence,
       taps,
     }
   }
