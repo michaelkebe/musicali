@@ -273,4 +273,50 @@ test.describe("Musicali E2E", () => {
     const href = await versionLink.getAttribute("href")
     expect(href).toContain("github.com/michaelkebe/musicali")
   })
+
+  test("no cumulative beat-timing drift over 64 beats at 300 BPM", async ({ page }) => {
+    await tapExact(page, 4, 1, 200)
+    await expect(page.getByText("300.000 BPM")).toBeVisible()
+    await restorePerfNow(page)
+
+    // Start a rAF-based poller before play — counts beat transitions via rowBeat DOM.
+    await page.evaluate(() => {
+      const el = document.querySelector(".beat-num-lg")
+      let lastBeat = el ? parseInt(el.textContent || "0") : 0
+      let transitionsDone = 0
+      let startTime = 0
+
+      const poll = () => {
+        const cur = document.querySelector(".beat-num-lg")
+        if (cur) {
+          const rowBeat = parseInt(cur.textContent || "0")
+          if (rowBeat !== lastBeat) {
+            lastBeat = rowBeat
+            transitionsDone++
+            if (transitionsDone === 1) {
+              startTime = performance.now()
+            } else if (transitionsDone === 65) {
+              // 64 intervals measured from beat 2 → beat 66
+              window.__driftElapsed = performance.now() - startTime
+              window.__driftDone = true
+              return
+            }
+          }
+        }
+        requestAnimationFrame(poll)
+      }
+      requestAnimationFrame(poll)
+    })
+
+    await page.getByTitle("Start playback").click()
+
+    await page.waitForFunction(() => window.__driftDone, { timeout: 25000 })
+    const elapsed = await page.evaluate(() => window.__driftElapsed)
+
+    // 64 intervals × 200ms = 12800ms expected.
+    // With old cumulative-drift bug and ~8ms/beat rAF delay, total ≈ 13312ms.
+    // Tight tolerance catches drift while allowing headless timing jitter.
+    expect(elapsed).toBeGreaterThan(12400)
+    expect(elapsed).toBeLessThan(13200)
+  })
 })
