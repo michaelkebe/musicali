@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.8] - 2026-07-06
+
+### Added
+
+- PLL beat-tracking mode with configurable phase thresholds
+- E2E tests for PLL phase progression and beat-timing accuracy
+
+### Fixed
+
+- Cumulative beat-timing drift: playback loop now schedules next beat from the previous deadline (`nextBeatTimeRef + interval`) instead of the current `performance.now()`, preventing drift over long phrases
+
 ## [0.0.5] - 2026-07-04
 
 ### Changed
