@@ -15,6 +15,8 @@
 
 - PLL-derived BPM now persists to localStorage instead of only the legacy averaged BPM
 - PLL reset button now also clears saved BPM, preventing the seed effect from immediately re-seeding the PLL
+- Tap reset now clears the internal tap buffer synchronously instead of via useEffect, fixing a race where a quick tap after reset would recompute BPM from stale data
+- PLL tracking phase now skips interval updates when the gap from the last tap exceeds 2.5 beats, preventing a single isolated tap from corrupting the tempo estimate
 
 ## [0.0.8] - 2026-07-06
 

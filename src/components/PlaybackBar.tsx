@@ -101,10 +101,12 @@ function BpmTapper({ onBpmChange, usePll, onTap, onReset }: { onBpmChange: (bpm:
 
 function TapButton({ label, multiplier, tooltip, onBpmChange, onTap, spaceKey, resetKey, usePll }: { label: ReactNode; multiplier: number; tooltip?: string; onBpmChange: (bpm: number) => void; onTap?: (tapTime: number, multiplier: number) => void; spaceKey?: boolean; resetKey: number; usePll?: boolean }) {
   const tapsRef = useRef<number[]>([])
+  const prevResetKeyRef = useRef(resetKey)
 
-  useEffect(() => {
+  if (resetKey !== prevResetKeyRef.current) {
+    prevResetKeyRef.current = resetKey
     tapsRef.current = []
-  }, [resetKey])
+  }
 
   const handleTap = useCallback(() => {
     if (usePll) {

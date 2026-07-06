@@ -13,6 +13,7 @@ export const PLL_CONFIG = {
   MAX_BPM: 400,
   TRACKING_OFFSET_LERP: 0.6,
   TRACKING_INTERVAL_LERP: 0.001,
+  TRACKING_INTERVAL_GAP_THRESHOLD: 2.5,
   TRACKING_CONFIDENCE_INCREMENT: 0.05,
   MIN_INTERVAL_MS: 50,
   FORCE_INTERVAL_CONFIDENCE: 0.5,
@@ -63,8 +64,14 @@ export function pllReducer(prev: PllState, tapTime: number, multiplier: number):
     const predictedTime = prev.offsetMs + predictedBeat * prev.intervalMs
     const error = tapTime - predictedTime
     const newOffsetMs = prev.offsetMs + error * PLL_CONFIG.TRACKING_OFFSET_LERP
-    const newIntervalMs = Math.max(PLL_CONFIG.MIN_INTERVAL_MS, prev.intervalMs + error * PLL_CONFIG.TRACKING_INTERVAL_LERP)
     const newConfidence = Math.min(1, prev.confidence + PLL_CONFIG.TRACKING_CONFIDENCE_INCREMENT)
+
+    const lastTap = prev.taps[prev.taps.length - 1]
+    const gapOk = !lastTap || (tapTime - lastTap.time) <= PLL_CONFIG.TRACKING_INTERVAL_GAP_THRESHOLD * prev.intervalMs
+    const newIntervalMs = gapOk
+      ? Math.max(PLL_CONFIG.MIN_INTERVAL_MS, prev.intervalMs + error * PLL_CONFIG.TRACKING_INTERVAL_LERP)
+      : prev.intervalMs
+
     return {
       ...prev,
       offsetMs: newOffsetMs,
