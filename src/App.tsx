@@ -394,7 +394,7 @@ export default function App() {
             onMetronomeToggle={() => setMetronome((m) => !m)}
             onPllToggle={handlePllToggle}
             onTap={usePll ? onTap : undefined}
-            onPllReset={usePll ? pllReset : undefined}
+            onPllReset={usePll ? () => { pllReset(); setBpm(0) } : undefined}
             pllPhase={usePll ? pllPhase : undefined}
             pllConfidence={usePll ? pllState.confidence : undefined}
           />

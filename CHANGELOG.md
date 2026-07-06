@@ -14,6 +14,7 @@
 ### Fixed
 
 - PLL-derived BPM now persists to localStorage instead of only the legacy averaged BPM
+- PLL reset button now also clears saved BPM, preventing the seed effect from immediately re-seeding the PLL
 
 ## [0.0.8] - 2026-07-06
 
