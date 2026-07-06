@@ -363,7 +363,7 @@ export default function App() {
           </div>
 
           {placed.length > 0 && (
-            <button className="clear-btn" title="Clear all patterns and reset BPM" onMouseDown={() => { setPlaced([]); setBpm(0); if (usePllRef.current) pllReset(); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(BPM_STORAGE_KEY) }}>
+            <button className="clear-btn" title="Clear all patterns and reset BPM" onPointerDown={() => { setPlaced([]); setBpm(0); if (usePllRef.current) pllReset(); localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(BPM_STORAGE_KEY) }}>
               Clear All
             </button>
           )}

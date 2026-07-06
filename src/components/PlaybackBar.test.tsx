@@ -54,14 +54,14 @@ describe("PlaybackBar", () => {
   it("calls onPlay when play clicked", () => {
     const onPlay = vi.fn()
     render(<PlaybackBar {...defaultProps} bpm={60} onPlay={onPlay} />)
-    fireEvent.mouseDown(screen.getByTitle("Start playback"))
+    fireEvent.pointerDown(screen.getByTitle("Start playback"))
     expect(onPlay).toHaveBeenCalledOnce()
   })
 
   it("calls onStop when stop clicked", () => {
     const onStop = vi.fn()
     render(<PlaybackBar {...defaultProps} bpm={60} isPlaying={true} onStop={onStop} />)
-    fireEvent.mouseDown(screen.getByTitle("Stop playback"))
+    fireEvent.pointerDown(screen.getByTitle("Stop playback"))
     expect(onStop).toHaveBeenCalledOnce()
   })
 
@@ -78,7 +78,7 @@ describe("PlaybackBar", () => {
   it("calls onPllToggle when mode toggle clicked", () => {
     const onPllToggle = vi.fn()
     render(<PlaybackBar {...defaultProps} onPllToggle={onPllToggle} />)
-    fireEvent.mouseDown(screen.getByTitle("Switch to PLL mode"))
+    fireEvent.pointerDown(screen.getByTitle("Switch to PLL mode"))
     expect(onPllToggle).toHaveBeenCalledOnce()
   })
 
@@ -101,7 +101,7 @@ describe("PlaybackBar", () => {
   it("trimmer adjusts BPM via onBpmChange", () => {
     const onBpmChange = vi.fn()
     render(<PlaybackBar {...defaultProps} bpm={120} onBpmChange={onBpmChange} />)
-    fireEvent.mouseDown(screen.getByTitle("Trim BPM +0.1"))
+    fireEvent.pointerDown(screen.getByTitle("Trim BPM +0.1"))
     expect(onBpmChange).toHaveBeenCalledWith(120.1)
   })
 
@@ -119,7 +119,7 @@ describe("PlaybackBar", () => {
   it("calls onNudge with correct direction and step", () => {
     const onNudge = vi.fn()
     render(<PlaybackBar {...defaultProps} isPlaying={true} bpm={60} onNudge={onNudge} />)
-    fireEvent.mouseDown(screen.getByTitle("Nudge playback later by 10ms"))
+    fireEvent.pointerDown(screen.getByTitle("Nudge playback later by 10ms"))
     expect(onNudge).toHaveBeenCalledWith(1, 10)
   })
 
@@ -159,7 +159,7 @@ describe("PlaybackBar", () => {
   it("calls onAnnounceToggle", () => {
     const onAnnounceToggle = vi.fn()
     render(<PlaybackBar {...defaultProps} onAnnounceToggle={onAnnounceToggle} />)
-    fireEvent.mouseDown(screen.getByTitle("Toggle pattern announcements"))
+    fireEvent.pointerDown(screen.getByTitle("Toggle pattern announcements"))
     expect(onAnnounceToggle).toHaveBeenCalledOnce()
   })
 
@@ -188,10 +188,10 @@ describe("TapButton legacy mode", () => {
     render(<PlaybackBar {...defaultProps} bpm={0} onBpmChange={onBpmChange} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onBpmChange).toHaveBeenCalledTimes(1)
     expect(onBpmChange).toHaveBeenCalledWith(60)
@@ -208,9 +208,9 @@ describe("TapButton legacy mode", () => {
     render(<PlaybackBar {...defaultProps} bpm={0} onBpmChange={onBpmChange} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onBpmChange).not.toHaveBeenCalled()
   })
@@ -226,10 +226,10 @@ describe("TapButton legacy mode", () => {
     render(<PlaybackBar {...defaultProps} bpm={0} onBpmChange={onBpmChange} />)
     const btn = screen.getByTitle("Tap every 2 beats")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onBpmChange).toHaveBeenCalledWith(240)
   })
@@ -245,16 +245,16 @@ describe("TapButton legacy mode", () => {
     render(<PlaybackBar {...defaultProps} bpm={0} onBpmChange={onBpmChange} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(screen.getByTitle("Reset tap counter"))
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(screen.getByTitle("Reset tap counter"))
 
     time = 4000
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onBpmChange).toHaveBeenCalledWith(60)
   })
@@ -272,7 +272,7 @@ describe("TapButton PLL mode", () => {
     render(<PlaybackBar {...defaultProps} usePll={true} onTap={onTap} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
     expect(onTap).toHaveBeenCalledWith(expect.any(Number), 1)
   })
 
@@ -287,10 +287,10 @@ describe("TapButton PLL mode", () => {
     render(<PlaybackBar {...defaultProps} usePll={true} onTap={onTap} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onTap).toHaveBeenCalledTimes(4)
   })
@@ -307,10 +307,10 @@ describe("TapButton PLL mode", () => {
     render(<PlaybackBar {...defaultProps} usePll={true} onBpmChange={onBpmChange} onTap={onTap} />)
     const btn = screen.getByTitle("Tap every 1 beat")
 
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
-    fireEvent.mouseDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
+    fireEvent.pointerDown(btn)
 
     expect(onBpmChange).not.toHaveBeenCalled()
     expect(onTap).toHaveBeenCalledTimes(4)
@@ -319,7 +319,7 @@ describe("TapButton PLL mode", () => {
   it("PLL reset button calls onPllReset", () => {
     const onPllReset = vi.fn()
     render(<PlaybackBar {...defaultProps} usePll={true} onPllReset={onPllReset} />)
-    fireEvent.mouseDown(screen.getByTitle("Reset tap counter"))
+    fireEvent.pointerDown(screen.getByTitle("Reset tap counter"))
     expect(onPllReset).toHaveBeenCalledOnce()
   })
 })

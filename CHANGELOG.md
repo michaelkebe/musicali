@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- All `onMouseDown` handlers replaced with `onPointerDown` for immediate mobile touch response
+- Added `touch-action: manipulation` to all interactive elements to suppress 300ms tap delay
+
 ## [0.0.8] - 2026-07-06
 
 ### Added
