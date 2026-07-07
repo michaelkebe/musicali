@@ -32,15 +32,17 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, met
         <span className="btn-group">
           <BpmDetector onBpmChange={onBpmChange} />
           <BpmTapper onBpmChange={onBpmChange} usePll={usePll} onTap={onTap} onReset={onPllReset} />
-          <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
-          {usePll && pllPhase && (
-            <span className={`pll-indicator pll-${pllPhase}`} title={`${pllPhase}${pllConfidence !== undefined ? ` (${Math.round(pllConfidence * 100)}%)` : ""}`}>
-              <span className="pll-phase-label">{pllPhase === "idle" ? "···" : pllPhase === "regression" ? "FIT" : "LCK"}</span>
-              <span className="pll-confidence">
-                <span className="pll-confidence-bar" style={{ width: `${(pllConfidence ?? 0) * 100}%` }} />
+          <span className="bpm-stack">
+            <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
+            {usePll && pllPhase && (
+              <span className={`pll-indicator pll-${pllPhase}`} title={`${pllPhase}${pllConfidence !== undefined ? ` (${Math.round(pllConfidence * 100)}%)` : ""}`}>
+                <span className="pll-phase-label">{pllPhase === "idle" ? "···" : pllPhase === "regression" ? "FIT" : "LCK"}</span>
+                <span className="pll-confidence">
+                  <span className="pll-confidence-bar" style={{ width: `${(pllConfidence ?? 0) * 100}%` }} />
+                </span>
               </span>
-            </span>
-          )}
+            )}
+          </span>
           <button className="ctrl-btn mode-toggle" title={`Switch to ${usePll ? "averaged" : "PLL"} mode`} onPointerDown={onPllToggle}>
             {usePll ? "PLL" : "AVG"}
           </button>

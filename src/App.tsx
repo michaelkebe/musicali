@@ -114,7 +114,7 @@ export default function App() {
   const [currentBeat, setCurrentBeat] = useState(0)
   const [announce, setAnnounce] = useState(() => loadAnnounce())
   const [metronome, setMetronome] = useState(() => loadMetronome())
-  const [usePll, setUsePll] = useState(() => localStorage.getItem(PLL_STORAGE_KEY) === "true")
+  const [usePll, setUsePll] = useState(() => localStorage.getItem(PLL_STORAGE_KEY) !== "false")
   const { onTap, reset: pllReset, forceInterval, nudgeOffset, bpm: pllBpm, state: pllState, phase: pllPhase } = usePllBeat()
   const effectiveBpm = usePll ? pllBpm : bpm
   const rafRef = useRef<number | null>(null)

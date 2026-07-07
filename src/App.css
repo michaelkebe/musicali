@@ -180,6 +180,7 @@ h2 {
   font-family: inherit;
   touch-action: manipulation;
   min-height: 4rem;
+  min-width: 4rem;
 }
 .ctrl-btn:hover:not(:disabled) { border-color: #888; color: #fff; }
 .ctrl-btn:disabled { opacity: 0.3; cursor: default; }
@@ -192,11 +193,18 @@ h2 {
 .ctrl-btn.stop:hover:not(:disabled) { background: rgba(255,107,107,0.25); }
 
 .bpm-display {
-  font-size: 0.85rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #4d96ff;
-  min-width: 4.5rem;
+  min-width: 11ch;
+  text-align: right;
   font-family: monospace;
+}
+
+.bpm-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes beat-flash {
@@ -555,7 +563,6 @@ h2 {
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  min-width: 38px;
   padding: 0.35rem 0.4rem;
   background: rgba(255,255,255,0.06);
   border-color: rgba(255,255,255,0.12);
