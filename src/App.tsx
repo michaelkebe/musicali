@@ -20,7 +20,12 @@ function loadPlaced(): PlacedPattern[] {
     if (!raw) return []
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed
+    const valid = parsed.filter((p: PlacedPattern) => {
+      const found = allPatterns.some((d) => d.id === p.patternId)
+      if (!found) console.warn("loadPlaced: unknown patternId dropped", p.patternId)
+      return found
+    })
+    return valid
   } catch {
     return []
   }
