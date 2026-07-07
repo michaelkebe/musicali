@@ -28,49 +28,52 @@ export default function PlaybackBar({ bpm, isPlaying, currentBeat, announce, met
   const rowBeat = ((currentBeat - 1) % 8) + 1
   return (
     <div className="playback-bar">
-      <span className="btn-group">
-        <BpmDetector onBpmChange={onBpmChange} />
-        <BpmTapper onBpmChange={onBpmChange} usePll={usePll} onTap={onTap} onReset={onPllReset} />
-        <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
-        {usePll && pllPhase && (
-          <span className={`pll-indicator pll-${pllPhase}`} title={`${pllPhase}${pllConfidence !== undefined ? ` (${Math.round(pllConfidence * 100)}%)` : ""}`}>
-            <span className="pll-phase-label">{pllPhase === "idle" ? "···" : pllPhase === "regression" ? "FIT" : "LCK"}</span>
-            <span className="pll-confidence">
-              <span className="pll-confidence-bar" style={{ width: `${(pllConfidence ?? 0) * 100}%` }} />
+      <div className="playback-row">
+        <span className="btn-group">
+          <BpmDetector onBpmChange={onBpmChange} />
+          <BpmTapper onBpmChange={onBpmChange} usePll={usePll} onTap={onTap} onReset={onPllReset} />
+          <span className="bpm-display">{bpm > 0 ? `${bpm.toFixed(3)} BPM` : "— BPM"}</span>
+          {usePll && pllPhase && (
+            <span className={`pll-indicator pll-${pllPhase}`} title={`${pllPhase}${pllConfidence !== undefined ? ` (${Math.round(pllConfidence * 100)}%)` : ""}`}>
+              <span className="pll-phase-label">{pllPhase === "idle" ? "···" : pllPhase === "regression" ? "FIT" : "LCK"}</span>
+              <span className="pll-confidence">
+                <span className="pll-confidence-bar" style={{ width: `${(pllConfidence ?? 0) * 100}%` }} />
+              </span>
             </span>
-          </span>
-        )}
-        <button className="ctrl-btn mode-toggle" title={`Switch to ${usePll ? "averaged" : "PLL"} mode`} onPointerDown={onPllToggle}>
-          {usePll ? "PLL" : "AVG"}
-        </button>
-        {!usePll && <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />}
-      </span>
-
-      <span className="btn-group">
-        <button className="ctrl-btn play" title="Start playback" onPointerDown={onPlay} disabled={isPlaying || bpm <= 0}>
-          ▶ Play
-        </button>
-        <button className="ctrl-btn stop" title="Stop playback" onPointerDown={onStop} disabled={!isPlaying}>
-          ■ Stop
-        </button>
-        <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
-      </span>
-
-      <span className="btn-group">
-        <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} title="Toggle pattern announcements" onPointerDown={onAnnounceToggle}>
-          {announce ? "🔊" : "🔇"}
-        </button>
-        <button className={`ctrl-btn metronome-btn${metronome ? "" : " muted"}`} title="Toggle metronome click" onPointerDown={onMetronomeToggle}>
-          {metronome ? "🎵" : "🎵"}
-        </button>
-      </span>
-
-      <span className="btn-group">
-        <span className="beat-display" key={currentBeat}>
-          <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
-          <span className="beat-num-lg">{rowBeat}</span>
+          )}
+          <button className="ctrl-btn mode-toggle" title={`Switch to ${usePll ? "averaged" : "PLL"} mode`} onPointerDown={onPllToggle}>
+            {usePll ? "PLL" : "AVG"}
+          </button>
+          <TrimmerButtons bpm={bpm} onBpmChange={onBpmChange} />
         </span>
-      </span>
+      </div>
+
+      <div className="playback-row">
+        <span className="btn-group">
+          <button className="ctrl-btn play" title="Start playback" onPointerDown={onPlay} disabled={isPlaying || bpm <= 0}>
+            ▶ Play
+          </button>
+          <button className="ctrl-btn stop" title="Stop playback" onPointerDown={onStop} disabled={!isPlaying}>
+            ■ Stop
+          </button>
+          <NudgeButtons onNudge={onNudge} disabled={!isPlaying} />
+        </span>
+        <span className="btn-group">
+          <button className={`ctrl-btn announce-btn${announce ? "" : " muted"}`} title="Toggle pattern announcements" onPointerDown={onAnnounceToggle}>
+            {announce ? "🔊" : "🔇"}
+          </button>
+          <button className={`ctrl-btn metronome-btn${metronome ? "" : " muted"}`} title="Toggle metronome click" onPointerDown={onMetronomeToggle}>
+            {metronome ? "🎵" : "🎵"}
+          </button>
+        </span>
+        <span className="btn-group beat-display-group">
+          <span className="beat-display" key={currentBeat}>
+            <span className="beat-dir">{rowBeat % 2 === 1 ? "DOWN" : "UP"}</span>
+            <span className="beat-num-lg">{rowBeat}</span>
+          </span>
+        </span>
+      </div>
+
     </div>
   )
 }
@@ -145,8 +148,8 @@ function TapButton({ label, multiplier, tooltip, onBpmChange, onTap, spaceKey, r
   )
 }
 
-function TrimmerButtons({ bpm, onBpmChange }: { bpm: number; onBpmChange: (bpm: number) => void }) {
-  const disabled = bpm <= 0
+function TrimmerButtons({ bpm, onBpmChange, disabled: disabledProp }: { bpm: number; onBpmChange: (bpm: number) => void; disabled?: boolean }) {
+  const disabled = disabledProp || bpm <= 0
   return (
     <span className="trimmer-group">
       <button className="ctrl-btn trimmer" title="Trim BPM −0.1" onPointerDown={() => onBpmChange(Math.max(1, bpm - 0.1))} disabled={disabled}>

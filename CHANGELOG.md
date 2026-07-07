@@ -5,11 +5,17 @@
 ### Added
 
 - Metronome click (Web Audio API) with toggle button, synced to beat playback; beat 1 of each 8-count is higher-pitched
+- E2E tests for PLL tapper precision (perfect, slight jitter, sloppy jitter)
+- E2E helper `tapScheduled` for deterministic tapping with synthetic timestamps
 
 ### Changed
 
 - All `onMouseDown` handlers replaced with `onPointerDown` for immediate mobile touch response
 - Added `touch-action: manipulation` to all interactive elements to suppress 300ms tap delay
+- Playback bar restructured into three rows (tempo controls, playback controls, utility + beat display)
+- Trimmer buttons now shown in both AVG and PLL modes
+- All control buttons increased to 4rem height for visual consistency
+- PLL tracking LERP values retuned for better stability (offset 0.6→0.3, interval 0.001→0.005)
 
 ### Fixed
 
@@ -17,6 +23,7 @@
 - PLL reset button now also clears saved BPM, preventing the seed effect from immediately re-seeding the PLL
 - Tap reset now clears the internal tap buffer synchronously instead of via useEffect, fixing a race where a quick tap after reset would recompute BPM from stale data
 - PLL tracking phase now skips interval updates when the gap from the last tap exceeds 2.5 beats, preventing a single isolated tap from corrupting the tempo estimate
+- Announcement target beat off-by-one (0-indexed vs 1-indexed)
 
 ## [0.0.8] - 2026-07-06
 

@@ -246,7 +246,7 @@ export default function App() {
 
     nextBeatTimeRef.current = nextBeatTimeRef.current + 60000 / effectiveBpmRef.current
 
-    const targetBeat = ((currentBeatRef.current + 2) % 128) + 1
+    const targetBeat = ((currentBeatRef.current + 2) % 128)
     if (announceRef.current) {
       for (const p of placedRef.current) {
         if (p.startBeat === targetBeat && !triggeredRef.current.has(p.id)) {
