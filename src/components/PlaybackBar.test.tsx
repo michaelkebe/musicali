@@ -90,9 +90,15 @@ describe("PlaybackBar", () => {
     expect(screen.getByTitle("Trim BPM +0.1")).toBeInTheDocument()
   })
 
-  it("does not render trimmer buttons in PLL mode", () => {
+  it("renders trimmer buttons in PLL mode", () => {
+    render(<PlaybackBar {...defaultProps} usePll={true} bpm={120} />)
+    expect(screen.getByTitle("Trim BPM −0.1")).toBeInTheDocument()
+    expect(screen.getByTitle("Trim BPM +0.1")).toBeInTheDocument()
+  })
+
+  it("PLL trimmer buttons are disabled when BPM is 0", () => {
     render(<PlaybackBar {...defaultProps} usePll={true} />)
-    expect(screen.queryByTitle("Trim BPM −0.1")).not.toBeInTheDocument()
+    expect(screen.getByTitle("Trim BPM −0.1")).toBeDisabled()
   })
 
   it("trimmer buttons are disabled when BPM is 0", () => {

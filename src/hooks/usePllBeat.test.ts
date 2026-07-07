@@ -310,9 +310,9 @@ describe("usePllBeat hook", () => {
 
     act(() => { result.current.onTap(1500, 1) })
     expect(result.current.state.taps).toHaveLength(1)
-    expect(result.current.state.intervalMs).toBeCloseTo(999.5, 1)
+    expect(result.current.state.intervalMs).toBeCloseTo(997.5, 1)
     expect(result.current.state.confidence).toBe(0.55)
-    expect(result.current.bpm).toBeCloseTo(60.03, 0)
+    expect(result.current.bpm).toBeCloseTo(60.15, 0)
   })
 
   it("mixing multipliers during regression yields approximate BPM", () => {

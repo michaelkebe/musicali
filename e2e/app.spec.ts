@@ -41,6 +41,78 @@ test.describe("Musicali E2E", () => {
     }
   }
 
+  // Dispatch a sequence of pointerdown events with deterministic performance.now() values.
+  // Each tap reports the supplied time and the mock immediately falls back to real time,
+  // so unrelated calls between taps do not consume the schedule.
+  async function tapScheduled(page: import("@playwright/test").Page, times: number[], multiplier = 1) {
+    await page.evaluate(({ tapTimes, mul }) => {
+      if (!window.__origPerfNow) {
+        window.__origPerfNow = performance.now.bind(performance)
+      }
+      window.__tapTime = -1
+      performance.now = () => {
+        if (window.__tapTime >= 0) {
+          const t = window.__tapTime
+          window.__tapTime = -1
+          return t
+        }
+        return window.__origPerfNow()
+      }
+
+      const title = mul === 1 ? "Tap every 1 beat" : mul === 2 ? "Tap every 2 beats" : "Tap every 4 beats"
+      const btn = document.querySelector(`[title="${title}"]`) as HTMLElement | null
+      if (!btn) throw new Error(`Tap button not found for multiplier ${mul}`)
+
+      for (const t of tapTimes) {
+        window.__tapTime = t
+        btn.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }))
+      }
+    }, { tapTimes: times, mul: multiplier })
+  }
+
+  // Start playback and measure the average real-wall-clock interval over `intervals` beats.
+  // Returns the average ms per beat. Call restorePerfNow() before this so playback uses real time.
+  async function measureAverageInterval(page: import("@playwright/test").Page, intervals: number, timeoutMs: number) {
+    await page.evaluate(({ n }) => {
+      const el = document.querySelector(".beat-num-lg")
+      let lastBeat = el ? parseInt(el.textContent || "0") : 0
+      let startTime = 0
+      let sum = 0
+      let measured = 0
+      let done = false
+
+      const poll = () => {
+        if (done) return
+        const cur = document.querySelector(".beat-num-lg")
+        if (cur) {
+          const rowBeat = parseInt(cur.textContent || "0")
+          if (rowBeat !== lastBeat && rowBeat > 0) {
+            lastBeat = rowBeat
+            if (measured === 0) {
+              startTime = performance.now()
+              measured = 1
+            } else {
+              sum += performance.now() - startTime
+              startTime = performance.now()
+              measured++
+              if (measured >= n + 1) {
+                window.__avgInterval = sum / n
+                window.__avgIntervalDone = true
+                done = true
+                return
+              }
+            }
+          }
+        }
+        requestAnimationFrame(poll)
+      }
+      requestAnimationFrame(poll)
+    }, { n: intervals })
+    await page.getByTitle("Start playback").click()
+    await page.waitForFunction(() => window.__avgIntervalDone, { timeout: timeoutMs })
+    return await page.evaluate(() => window.__avgInterval)
+  }
+
   test("app loads with title and all major UI sections", async ({ page }) => {
     await expect(page.getByText("Musicali")).toBeVisible()
     await expect(page.getByText("WCS Phrase & Pattern Visualizer")).toBeVisible()
@@ -151,19 +223,31 @@ test.describe("Musicali E2E", () => {
     await expect(page.getByTitle("Start playback")).not.toBeDisabled()
   })
 
-  test("trimmer buttons appear in AVG mode, disappear in PLL mode", async ({ page }) => {
+  test("trimmer buttons appear in both AVG and PLL modes", async ({ page }) => {
     await expect(page.getByTitle("Trim BPM +0.1")).toBeVisible()
 
     await page.getByTitle("Switch to PLL mode").click()
-    await expect(page.getByTitle("Trim BPM +0.1")).not.toBeVisible()
+    await expect(page.getByTitle("Trim BPM +0.1")).toBeVisible()
   })
 
-  test("trimmer adjusts BPM", async ({ page }) => {
+  test("trimmer adjusts BPM in AVG mode", async ({ page }) => {
     await tapExact(page, 4)
     await expect(page.getByText("60.000 BPM")).toBeVisible()
 
     await page.getByTitle("Trim BPM +0.1").click()
     await expect(page.getByText("60.100 BPM")).toBeVisible()
+  })
+
+  test("trimmer adjusts BPM in PLL mode", async ({ page }) => {
+    await page.getByTitle("Switch to PLL mode").click()
+    const taps = Array.from({ length: 17 }, (_, i) => i * 500)
+    await tapScheduled(page, taps, 1)
+    await expect(page.getByText("LCK")).toBeVisible()
+
+    await page.getByTitle("Trim BPM +0.1").click()
+    const bpmText = await page.locator(".bpm-display").textContent()
+    expect(parseFloat(bpmText!)).toBeGreaterThan(120)
+    expect(parseFloat(bpmText!)).toBeLessThan(121)
   })
 
   test("beat display shows correct row beat", async ({ page }) => {
@@ -318,5 +402,72 @@ test.describe("Musicali E2E", () => {
     // Tight tolerance catches drift while allowing headless timing jitter.
     expect(elapsed).toBeGreaterThan(12400)
     expect(elapsed).toBeLessThan(13200)
+  })
+
+  test.describe("tapper precision", () => {
+    // 120 BPM → 500ms between taps. PLL needs > 16 taps to leave the regression phase.
+    const baseInterval = 500
+    const tapCount = 17
+    const perfectTimes = Array.from({ length: tapCount }, (_, i) => i * baseInterval)
+    const slightJitter = [0, 8, -5, 10, -7, 3, -10, 6, -4, 9, -2, 4, -7, 10, -2, 7, -3]
+    const slightTimes = slightJitter.map((j, i) => i * baseInterval + j)
+    const sloppyJitter = [0, 60, -80, 70, -50, 90, -60, 40, -70, 80, -45, 65, -75, 55, -85, 50, -40]
+    const sloppyTimes = sloppyJitter.map((j, i) => i * baseInterval + j)
+
+    test("perfect tapper yields exact BPM and tight playback sync in PLL mode", async ({ page }) => {
+      await page.getByTitle("Switch to PLL mode").click()
+      await tapScheduled(page, perfectTimes, 1)
+
+      await expect(page.getByText("120.000 BPM")).toBeVisible()
+      await expect(page.getByText("LCK")).toBeVisible()
+
+      await restorePerfNow(page)
+      const avg = await measureAverageInterval(page, 8, 6000)
+      // 120 BPM → 500ms/beat; allow ~4% total headless tolerance.
+      expect(avg).toBeGreaterThan(480)
+      expect(avg).toBeLessThan(520)
+    })
+
+    test("slightly imperfect tapper yields close BPM and acceptable sync in PLL mode", async ({ page }) => {
+      await page.getByTitle("Switch to PLL mode").click()
+      await tapScheduled(page, slightTimes, 1)
+
+      const bpmText = await page.locator(".bpm-display").textContent()
+      const bpm = parseFloat(bpmText!)
+      expect(bpm).toBeGreaterThan(119.9)
+      expect(bpm).toBeLessThan(120.1)
+      await expect(page.getByText("LCK")).toBeVisible()
+
+      await restorePerfNow(page)
+      const avg = await measureAverageInterval(page, 8, 6000)
+      // Small jitter is well within what PLL regression/tracking can absorb.
+      expect(avg).toBeGreaterThan(470)
+      expect(avg).toBeLessThan(530)
+    })
+
+    test("sloppy tapper is detected but not expected to keep perfect sync", async ({ page }) => {
+      await page.getByTitle("Switch to PLL mode").click()
+      await tapScheduled(page, sloppyTimes, 1)
+
+      const bpmText = await page.locator(".bpm-display").textContent()
+      const bpm = parseFloat(bpmText!)
+      // BPM should still land in a reasonable dance-tempo range.
+      expect(bpm).toBeGreaterThan(118)
+      expect(bpm).toBeLessThan(122)
+      await expect(page.getByText("LCK")).toBeVisible()
+
+      // Intentionally no tight sync assertion here. A human this sloppy cannot expect
+      // playback to be perfectly in sync; the valuable property is that the app stays
+      // stable and produces a usable BPM instead of crashing or going silent.
+    })
+
+    test("legacy AVG mode handles slightly imperfect tapper with trimmed mean", async ({ page }) => {
+      // Default AVG mode: trimmed mean discards the worst outlier, so small jitter is fine.
+      await tapScheduled(page, slightTimes, 1)
+      const bpmText = await page.locator(".bpm-display").textContent()
+      const bpm = parseFloat(bpmText!)
+      expect(bpm).toBeGreaterThan(119)
+      expect(bpm).toBeLessThan(121)
+    })
   })
 })
