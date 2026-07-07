@@ -4,7 +4,7 @@
 
 ### Added
 
-- New WCS patterns: basic-whip-outside-turn, basic-whip-inside-turn, reverse-whip (8-count); roll-in-roll-out (6-count); renamed underarm → underarm-turn
+- New WCS patterns: basic-whip-outside-turn, basic-whip-inside-turn, reverse-whip, same-side-whip, behind-the-back-whip, basket-whip (8-count); roll-in-roll-out, torque-turn, free-spin (6-count); renamed underarm → underarm-turn
 - Loading patterns from localStorage now validates `patternId` against known definitions; invalid IDs are dropped with a console warning instead of crashing the UI
 
 ## [0.1.0] - 2026-07-07
